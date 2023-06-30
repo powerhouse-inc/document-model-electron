@@ -124,11 +124,7 @@ export async function createScopeFrameworkTab(
         await import('src/components/editors/scope-framework')
     ).default;
 
-    const scope =
-        document ??
-        utils.createDocument(
-            ScopeFramework.createEmptyExtendedScopeFrameworkState()
-        );
+    const scope = document ?? ScopeFramework.utils.createDocument();
     return createDocumentTab(scope, ScopeFrameworkEditor, id, 'New scope');
 }
 
@@ -142,7 +138,7 @@ export async function createBudgetStatementTab(
     const BudgetStatementEditor = (
         await import('src/components/editors/budget-statement')
     ).default;
-    const scope = document ?? BudgetStatement.utils.createBudgetStatement();
+    const scope = document ?? BudgetStatement.utils.createDocument();
     return createDocumentTab(scope, BudgetStatementEditor, id, 'New budget');
 }
 
@@ -158,10 +154,7 @@ export async function createDocumentModelTab(
     ).default;
 
     const scope =
-        document ??
-        utils.createDocument(
-            DocumentModel.createEmptyExtendedDocumentModelState()
-        );
+        document ?? utils.createDocument(DocumentModel.utils.createDocument());
     return createDocumentTab(
         scope,
         DocumentModelEditor,
