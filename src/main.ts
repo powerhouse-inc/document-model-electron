@@ -8,6 +8,7 @@ import {
     nativeImage,
     shell,
 } from 'electron';
+import { machineId } from 'node-machine-id';
 import path from 'path';
 import store from './app/store';
 import { Theme } from './store';
@@ -48,6 +49,10 @@ async function handleFileSave(document: Document) {
         app.addRecentDocument(savedPath);
     }
 }
+
+ipcMain.handle('getMachineId', () => {
+    return machineId();
+});
 
 ipcMain.handle('dialog:saveFile', (e, args) => handleFileSave(args));
 

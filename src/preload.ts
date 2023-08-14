@@ -59,6 +59,7 @@ const electronApi = {
         ipcRenderer.invoke('openURL', url);
     },
     setTheme: (theme: Theme) => ipcRenderer.send('theme', theme),
+    getMachineId: () => ipcRenderer.invoke('getMachineId'),
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronApi);

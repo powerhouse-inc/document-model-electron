@@ -25,6 +25,7 @@ export const App: React.FC = () => {
             loader: () => <></>, // TODO loading
         },
     ]);
+
     return <RouterProvider router={router} />;
 };
 
