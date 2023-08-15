@@ -1,6 +1,7 @@
 import * as Olm from '@matrix-org/olm';
 import { atomWithStorage } from 'jotai/utils';
 import * as sdk from 'matrix-js-sdk';
+import { generateJWT } from 'src/utils/jwt';
 global.Olm = Olm;
 
 class Matrix {
@@ -20,48 +21,73 @@ class Matrix {
         });
         await store.startup();
 
-        const client = await sdk.createClient({
-            baseUrl: 'https://matrix.org',
+        let client = await sdk.createClient({
+            baseUrl: 'http://localhost:8008/',
             deviceId: machineId,
             store: store,
             cryptoCallbacks: {
                 getSecretStorageKey: this.getSecretStorageKey,
             },
         });
-        await client.loginWithPassword('test-connect', 'TODO');
 
-        client.on(sdk.ClientEvent.Sync, async (state: string) => {
-            if (state === 'PREPARED') {
-                this.ready = true;
-                client.setGlobalErrorOnUnknownDevices(false);
+        const token = await generateJWT();
 
-                const room = await client.getRoom(
-                    '!wmaUeVhnIgWlsJeCKz:matrix.org'
-                );
-                for (const event of room!.getLiveTimeline().getEvents()) {
-                    // Check if the event is a message event
-                    if (event.getType() === 'm.room.message') {
-                        if (event.isEncrypted()) {
-                            await client.decryptEventIfNeeded(event);
+        const auth = await client.login('org.matrix.login.jwt', { token });
+        // const test = await client.loginWithPassword(
+        //     'ethtoronto-matrix',
+        //     'aCvq6t8Gr*b4zAQ'
+        // );
 
-                            if (event.isDecryptionFailure()) {
-                                console.error(
-                                    'ERROR decrypting event',
-                                    event.event
-                                );
-                            } else {
-                                const deviceInfo =
-                                    await client.getEventSenderDeviceInfo(
-                                        event
-                                    );
-                                console.info('DEVICE INFO', deviceInfo);
-                                // TODO verify device with Renown
-                            }
-                        }
-                    }
-                }
-            }
+        client = sdk.createClient({
+            baseUrl: 'http://localhost:8008/',
+            store: store,
+            cryptoCallbacks: {
+                getSecretStorageKey: this.getSecretStorageKey,
+            },
+            accessToken: auth.access_token,
+            userId: auth.user_id,
+            deviceId: machineId,
         });
+
+        // const acessToken = await client.requestLoginToken();
+        // console.log(acessToken);
+
+        // const test = await client.loginWithToken(
+        //     'syt_ZXRodG9yb250by1tYXRyaXg_VBWtWgGehmZYILHyAdPr_2e1GnU'
+        // );
+
+        // client.on(sdk.ClientEvent.Sync, async (state: string) => {
+        //     if (state === 'PREPARED') {
+        //         this.ready = true;
+        //         client.setGlobalErrorOnUnknownDevices(false);
+
+        //         // const room = await client.getRoom(
+        //         //     '!wmaUeVhnIgWlsJeCKz:matrix.org'
+        //         // );
+        //         // for (const event of room!.getLiveTimeline().getEvents()) {
+        //         //     // Check if the event is a message event
+        //         //     if (event.getType() === 'm.room.message') {
+        //         //         if (event.isEncrypted()) {
+        //         //             await client.decryptEventIfNeeded(event);
+
+        //         //             if (event.isDecryptionFailure()) {
+        //         //                 console.error(
+        //         //                     'ERROR decrypting event',
+        //         //                     event.event
+        //         //                 );
+        //         //             } else {
+        //         //                 const deviceInfo =
+        //         //                     await client.getEventSenderDeviceInfo(
+        //         //                         event
+        //         //                     );
+        //         //                 console.info('DEVICE INFO', deviceInfo);
+        //         //                 // TODO verify device with Renown
+        //         //             }
+        //         //         }
+        //         //     }
+        //         // }
+        //     }
+        // });
 
         await client.initCrypto();
         await client.startClient();
