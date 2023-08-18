@@ -8,14 +8,14 @@ import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { themeAtom } from 'src/store';
 import { EditorProps } from '.';
-import { matrixAtom } from '../../store/matrix';
+import { useMatrix } from '../../store/matrix';
 
 export default function Editor({
     document,
     onChange,
 }: EditorProps<BudgetStatementState, BudgetStatementAction>) {
     const theme = useAtomValue(themeAtom);
-    const matrix = useAtomValue(matrixAtom);
+    const [matrix] = useMatrix();
 
     const [budgetStatement, dispatch] =
         BudgetStatement.useBudgetStatementReducer(document);

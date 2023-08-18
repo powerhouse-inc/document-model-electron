@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai';
 import React, { Suspense } from 'react';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import atoms from 'src/store';
+import WalletProvider from '../utils/wallet';
 
 export const App: React.FC = () => {
     const router = createHashRouter([
@@ -12,8 +13,12 @@ export const App: React.FC = () => {
             children: [
                 {
                     path: '',
-                    lazy: () => import('src/pages/tabs'),
+                    lazy: () => import('src/pages/demo'),
                 },
+                // {
+                //     path: '',
+                //     lazy: () => import('src/pages/tabs'),
+                // },
                 {
                     path: 'settings',
                     lazy: () => import('src/pages/settings'),
@@ -26,7 +31,11 @@ export const App: React.FC = () => {
         },
     ]);
 
-    return <RouterProvider router={router} />;
+    return (
+        <WalletProvider>
+            <RouterProvider router={router} />
+        </WalletProvider>
+    );
 };
 
 const Preloader = () => {
