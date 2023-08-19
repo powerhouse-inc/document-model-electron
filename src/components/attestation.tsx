@@ -1,6 +1,8 @@
 import Button from './button';
 
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
+import { attestationAtom } from 'src/store';
 import { getMatrixPublicKey, useMatrix } from 'src/store/matrix';
 import { useAccount } from 'wagmi';
 import {
@@ -19,9 +21,7 @@ export default () => {
     const [attestation, setAttestation] = useState<
         ConnectAttestation | undefined
     >(undefined);
-    const [attestationId, setAttestationId] = useState<
-        string | null | undefined
-    >(undefined);
+    const [attestationId, setAttestationId] = useAtom(attestationAtom);
     const [loading, setLoading] = useState(false);
     const [matrixPublicKey, setMatrixPublicKey] = useState<
         string | undefined
@@ -92,7 +92,6 @@ export default () => {
                 matrixPublicKey
             );
             if (attestation?.id) {
-                console.log(attestation.id);
                 await revokeConnectAttestation(signer, attestation.id);
                 setAttestationId(undefined);
             }

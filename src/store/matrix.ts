@@ -43,6 +43,12 @@ global.Olm = Olm;
 //     return [result![0], decodedKey];
 // }
 
+export type MatrixMessage = {
+    sender?: string;
+    publicKey?: string;
+    content?: sdk.IContent;
+};
+
 const cryptoStore = new sdk.IndexedDBCryptoStore(
     window.indexedDB,
     'matrix-crypto'
@@ -88,10 +94,8 @@ async function _init(accountAddress: string, publicKey: string) {
         challenge,
         signedChallenge
     );
-    console.log(token);
 
     const machineId = await window.electronAPI?.getMachineId(); // TODO
-    console.log('CREATE CLIENT: ACTUAL');
     const client = sdk.createClient({
         baseUrl: 'http://localhost:8008/',
         deviceId: 'device123', // TODO
@@ -114,37 +118,44 @@ async function _init(accountAddress: string, publicKey: string) {
     // const test = await client.loginWithToken(
     //     'syt_ZXRodG9yb250by1tYXRyaXg_VBWtWgGehmZYILHyAdPr_2e1GnU'
     // );
+    const initialSync = new Promise<void>(resolve => {
+        client.on(sdk.ClientEvent.Sync, async (state: string) => {
+            console.log('state', state);
+            if (state === 'PREPARED') {
+                resolve();
+            }
+        });
+    });
 
-    // client.on(sdk.ClientEvent.Sync, async (state: string) => {
-    //     if (state === 'PREPARED') {
+    client.setGlobalErrorOnUnknownDevices(false);
+
     //         this.ready = true;
-    //         client.setGlobalErrorOnUnknownDevices(false);
 
     //         // const room = await client.getRoom(
     //         //     '!wmaUeVhnIgWlsJeCKz:matrix.org'
     //         // );
-    //         // for (const event of room!.getLiveTimeline().getEvents()) {
-    //         //     // Check if the event is a message event
-    //         //     if (event.getType() === 'm.room.message') {
-    //         //         if (event.isEncrypted()) {
-    //         //             await client.decryptEventIfNeeded(event);
+    // for (const event of room!.getLiveTimeline().getEvents()) {
+    //     // Check if the event is a message event
+    //     if (event.getType() === 'm.room.message') {
+    //         if (event.isEncrypted()) {
+    //             await client.decryptEventIfNeeded(event);
 
-    //         //             if (event.isDecryptionFailure()) {
-    //         //                 console.error(
-    //         //                     'ERROR decrypting event',
-    //         //                     event.event
-    //         //                 );
-    //         //             } else {
-    //         //                 const deviceInfo =
-    //         //                     await client.getEventSenderDeviceInfo(
-    //         //                         event
-    //         //                     );
-    //         //                 console.info('DEVICE INFO', deviceInfo);
-    //         //                 // TODO verify device with Renown
-    //         //             }
-    //         //         }
-    //         //     }
-    //         // }
+    //             if (event.isDecryptionFailure()) {
+    //                 console.error(
+    //                     'ERROR decrypting event',
+    //                     event.event
+    //                 );
+    //             } else {
+    //                 const deviceInfo =
+    //                     await client.getEventSenderDeviceInfo(
+    //                         event
+    //                     );
+    //                 console.info('DEVICE INFO', deviceInfo);
+    //                 // TODO verify device with Renown
+    //             }
+    //         }
+    //     }
+    // }
     //     }
     // });
 
@@ -158,6 +169,9 @@ async function _init(accountAddress: string, publicKey: string) {
     await client.crypto!.signObject(signature);
     console.log('SIGNATURE:', signature);
     // TODO upload keys to Renown
+
+    // wait for initial sync to be done
+    await initialSync;
     return client;
 }
 
@@ -165,9 +179,39 @@ const init = executeOnce(_init);
 
 let matrixClient: sdk.MatrixClient | undefined;
 
+async function eventToMessage(
+    client: sdk.MatrixClient,
+    event: sdk.MatrixEvent
+): Promise<MatrixMessage | undefined> {
+    if (event.getType() === 'm.room.message') {
+        const device = await client.getEventSenderDeviceInfo(event);
+        return {
+            content: event.event.content,
+            sender: event.sender?.userId,
+            publicKey: device?.getFingerprint(),
+        };
+    } else {
+        return undefined;
+    }
+}
+
+async function timelineToMessages(
+    client: sdk.MatrixClient,
+    timeline: sdk.EventTimeline
+): Promise<MatrixMessage[]> {
+    const messages: MatrixMessage[] = [];
+    for (const event of timeline.getEvents()) {
+        const message = await eventToMessage(client, event);
+        if (message) {
+            messages.push(message);
+        }
+    }
+    return messages;
+}
+
 function projectMatrixClient(matrixClient: sdk.MatrixClient | undefined) {
     return {
-        ready: false,
+        ready: !!matrixClient,
         client: matrixClient as sdk.MatrixClient | undefined,
         publicKey() {
             return matrixClient?.getDeviceEd25519Key();
@@ -177,9 +221,62 @@ function projectMatrixClient(matrixClient: sdk.MatrixClient | undefined) {
         },
         async sendMessage(roomId: string, message: any) {
             return matrixClient?.sendMessage(roomId, {
-                body: JSON.stringify(message, null, 2),
+                body: message,
                 msgtype: 'm.text',
             });
+        },
+        async getMessages(room: sdk.Room) {
+            if (!matrixClient) {
+                return [];
+            }
+            const e2eMembers = await room.getEncryptionTargetMembers();
+            for (const member of e2eMembers) {
+                const devices = matrixClient!.getStoredDevicesForUser(
+                    member.userId
+                );
+                for (const device of devices) {
+                    if (device.isUnverified()) {
+                        await matrixClient.setDeviceKnown(
+                            member.userId,
+                            device.deviceId,
+                            true
+                        );
+                        await matrixClient.setDeviceVerified(
+                            member.userId,
+                            device.deviceId,
+                            true
+                        );
+                    }
+                }
+            }
+            const timeline = room.getLiveTimeline();
+            return timelineToMessages(matrixClient, timeline);
+        },
+        async onMessage(
+            room: sdk.Room,
+            callback: (messages: MatrixMessage) => void
+        ) {
+            if (!matrixClient) {
+                return;
+            }
+            room.on(
+                sdk.RoomEvent.Timeline,
+                async (event, room, toStartOfTimeline, removed, data) => {
+                    if (!toStartOfTimeline && data.liveEvent) {
+                        const event = room?.getLiveTimeline().getEvents().pop();
+                        if (!event) {
+                            return;
+                        }
+                        const message = await eventToMessage(
+                            matrixClient,
+                            event
+                        );
+                        if (message) {
+                            callback(message);
+                        }
+                    }
+                }
+            );
         },
         async restorePassphrase() {
             if (!matrixClient) {
