@@ -6,7 +6,6 @@ import React, { Suspense, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useDropFile } from 'src/hooks';
 import { useTheme, userAtom } from 'src/store';
-import Attestation from './attestation';
 import Sidebar from './sidebar';
 
 const ROOT_FILE_DROP = false;
@@ -57,10 +56,7 @@ const Root = () => {
                 <Suspense>
                     <Sidebar />
                     <div className="relative flex-1 overflow-auto">
-                        <div className="absolute right-10 top-3 flex">
-                            <div className="mr-4 flex items-center">
-                                <Attestation />
-                            </div>
+                        <div className="absolute right-10 top-[2rem] flex">
                             <ConnectButton />
                         </div>
                         <Outlet />

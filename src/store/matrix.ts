@@ -1,6 +1,6 @@
 import * as Olm from '@matrix-org/olm';
+import { atom, useAtom } from 'jotai';
 import * as sdk from 'matrix-js-sdk';
-import { useState } from 'react';
 import { requestChallenge, verifyChallenge } from 'src/services/renown';
 import { executeOnce } from 'src/utils/helpers';
 global.Olm = Olm;
@@ -75,7 +75,6 @@ const getMatrixCrypto = executeOnce(_getMatrixCrypto);
 
 export async function getMatrixPublicKey() {
     const client = await getMatrixCrypto();
-    console.log(client.getDeviceEd25519Key());
     return client.getDeviceEd25519Key();
 }
 
@@ -120,14 +119,12 @@ async function _init(accountAddress: string, publicKey: string) {
     // );
     const initialSync = new Promise<void>(resolve => {
         client.on(sdk.ClientEvent.Sync, async (state: string) => {
-            console.log('state', state);
             if (state === 'PREPARED') {
+                client.setGlobalErrorOnUnknownDevices(false);
                 resolve();
             }
         });
     });
-
-    client.setGlobalErrorOnUnknownDevices(false);
 
     //         this.ready = true;
 
@@ -177,12 +174,17 @@ async function _init(accountAddress: string, publicKey: string) {
 
 const init = executeOnce(_init);
 
-let matrixClient: sdk.MatrixClient | undefined;
+const matrixAtom = atom(projectMatrixClient(undefined));
 
 async function eventToMessage(
     client: sdk.MatrixClient,
     event: sdk.MatrixEvent
 ): Promise<MatrixMessage | undefined> {
+    if (event.isEncrypted()) {
+        if (event.isDecryptionFailure()) {
+            console.log('FAILED DECRYPTION');
+        }
+    }
     if (event.getType() === 'm.room.message') {
         const device = await client.getEventSenderDeviceInfo(event);
         return {
@@ -246,6 +248,8 @@ function projectMatrixClient(matrixClient: sdk.MatrixClient | undefined) {
                             device.deviceId,
                             true
                         );
+                    } else {
+                        console.log('device is verified', member.userId);
                     }
                 }
             }
@@ -309,7 +313,7 @@ function projectMatrixClient(matrixClient: sdk.MatrixClient | undefined) {
 }
 
 export function useMatrix() {
-    const [matrix, setMatrix] = useState(projectMatrixClient(matrixClient));
+    const [matrix, setMatrix] = useAtom(matrixAtom);
 
     async function initMatrix(accountAddress: string, publicKey: string) {
         const client = await init(accountAddress, publicKey);

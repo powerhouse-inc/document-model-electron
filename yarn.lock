@@ -1415,10 +1415,10 @@
   dependencies:
     cross-spawn "^7.0.1"
 
-"@matrix-org/matrix-sdk-crypto-js@^0.1.0-alpha.10":
-  version "0.1.0-alpha.11"
-  resolved "https://registry.yarnpkg.com/@matrix-org/matrix-sdk-crypto-js/-/matrix-sdk-crypto-js-0.1.0-alpha.11.tgz#24d705318c3159ef7dbe43bca464ac2bdd11e45d"
-  integrity sha512-HD3rskPkqrUUSaKzGLg97k/bN+OZrkcX7ODB/pNBs/jqq+/A0wDKqsszJotzFwsQcDPpWn78BmMyvBo4tLxKjw==
+"@matrix-org/matrix-sdk-crypto-wasm@^1.2.0":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@matrix-org/matrix-sdk-crypto-wasm/-/matrix-sdk-crypto-wasm-1.2.1.tgz#5b546c8a0e53b614f10b77b3b649818aed9d0db1"
+  integrity sha512-DCb7Q83PCQK0uav5vB3KNV/hJPlxAhT/ddar+VHz2kC39hMLKGzWYVhprpLYVcavaE/6OX+Q/xFkAoV/3QtUHQ==
 
 "@matrix-org/olm@https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.15.tgz":
   version "3.2.15"
@@ -5011,6 +5011,11 @@ cross-zip@^4.0.0:
   resolved "https://registry.yarnpkg.com/cross-zip/-/cross-zip-4.0.0.tgz#c29bfb2c001659a6d480ae9596f3bee83b48a230"
   integrity sha512-MEzGfZo0rqE10O/B+AEcCSJLZsrWuRUvmqJTqHNqBtALhaJc3E3ixLGLJNTRzEA2K34wbmOHC4fwYs9sVsdcCA==
 
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
+
 css-what@^5.0.1:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-5.1.0.tgz#3f7b707aadf633baf62c2ceb8579b545bb40f7fe"
@@ -7086,6 +7091,11 @@ junk@^3.1.0:
   resolved "https://registry.yarnpkg.com/junk/-/junk-3.1.0.tgz#31499098d902b7e98c5d9b9c80f43457a88abfa1"
   integrity sha512-pBxcB3LFc8QVgdggvZWyeys+hnrNWg4OcZIU/1X59k5jQdLBlCsYGRQaz234SqoRLTCgMH00fY0xRJH+F9METQ==
 
+jwt-decode@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-3.1.2.tgz#3fb319f3675a2df0c2895c8f5e9fa4b67b04ed59"
+  integrity sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==
+
 keccak@^3.0.0, keccak@^3.0.1, keccak@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.3.tgz#4bc35ad917be1ef54ff246f904c2bbbf9ac61276"
@@ -7407,28 +7417,30 @@ matrix-events-sdk@0.0.1:
   resolved "https://registry.yarnpkg.com/matrix-events-sdk/-/matrix-events-sdk-0.0.1.tgz#c8c38911e2cb29023b0bbac8d6f32e0de2c957dd"
   integrity sha512-1QEOsXO+bhyCroIe2/A5OwaxHvBm7EsSQ46DEDn8RBIfQwN5HWBpFvyWWR4QY0KHPPnnJdI99wgRiAl7Ad5qaA==
 
-matrix-js-sdk@^26.1.0:
-  version "26.1.0"
-  resolved "https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-26.1.0.tgz#d09f2892ca8263a92413cf61a66c2b2d8c4f545d"
-  integrity sha512-2isNpMFCR0hV8wNub4GJ/+8lIbz/jag12gf1P8rU++PfLFpeObooIDI3nnffBGLV5biZ3iLkaLOKAl33dSxchA==
+matrix-js-sdk@^27.2.0:
+  version "27.2.0"
+  resolved "https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-27.2.0.tgz#c06d5ce9f961b18ed62593e1c01eeaec754725bc"
+  integrity sha512-jsoA5oPv0eQbELlOzQ6J3v1HTPU0oydqgLQNVpztsajEj6AfJYvCaZueFak8jac9RsopZlqWbP8CXI8r5MvNEA==
   dependencies:
     "@babel/runtime" "^7.12.5"
-    "@matrix-org/matrix-sdk-crypto-js" "^0.1.0-alpha.10"
+    "@matrix-org/matrix-sdk-crypto-wasm" "^1.2.0"
     another-json "^0.2.0"
     bs58 "^5.0.0"
     content-type "^1.0.4"
+    jwt-decode "^3.1.2"
     loglevel "^1.7.1"
     matrix-events-sdk "0.0.1"
-    matrix-widget-api "^1.3.1"
+    matrix-widget-api "^1.5.0"
+    oidc-client-ts "^2.2.4"
     p-retry "4"
     sdp-transform "^2.14.1"
     unhomoglyph "^1.0.6"
     uuid "9"
 
-matrix-widget-api@^1.3.1:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.4.0.tgz#e426ec16a013897f3a4a9c2bff423f54ab0ba745"
-  integrity sha512-dw0dRylGQzDUoiaY/g5xx1tBbS7aoov31PRtFMAvG58/4uerYllV9Gfou7w+I1aglwB6hihTREzKltVjARWV6A==
+matrix-widget-api@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.5.0.tgz#4ae3e46a7f2854f944ddaf8a5af63d72fba76c45"
+  integrity sha512-hKGfqQKK5qVMwW0Sp8l2TiuW8UuHafTvUZNSWBPghedB/rSFbVLlr0mufuEV0iq/pQ7ChW96q/WEC6Llie4SnA==
   dependencies:
     "@types/events" "^3.0.0"
     events "^3.2.0"
@@ -7911,6 +7923,14 @@ obliterator@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/obliterator/-/obliterator-2.0.4.tgz#fa650e019b2d075d745e44f1effeb13a2adbe816"
   integrity sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==
+
+oidc-client-ts@^2.2.4:
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/oidc-client-ts/-/oidc-client-ts-2.2.5.tgz#ca0a9f791d8d9d00a1720226d3e96b50065ce015"
+  integrity sha512-omAHoLdFcylnwZeHJahOnJBwd0r78JzhmVAmsQjLGrexAnQKiHW9Ilr9FlRD5qjMikmabvaucI4k49AbQLXhmQ==
+  dependencies:
+    crypto-js "^4.1.1"
+    jwt-decode "^3.1.2"
 
 on-exit-leak-free@^0.2.0:
   version "0.2.0"

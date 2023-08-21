@@ -1,10 +1,5 @@
-import Button from './button';
-
-import { useAtom } from 'jotai';
+import { atom, useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import { attestationAtom } from 'src/store';
-import { getMatrixPublicKey, useMatrix } from 'src/store/matrix';
-import { useAccount } from 'wagmi';
 import {
     ConnectAttestation,
     attestConnect,
@@ -12,9 +7,13 @@ import {
     getConnectAttestation,
     revokeConnectAttestation,
     useEthersSigner,
-} from '../utils/attestation';
+} from 'src/utils/attestation';
+import { useAccount } from 'wagmi';
+import { getMatrixPublicKey, useMatrix } from './matrix';
 
-export default () => {
+export const attestationAtom = atom<string | null | undefined>(undefined);
+
+export const useAttestation = () => {
     const account = useAccount();
     const signer = useEthersSigner();
     const [matrix] = useMatrix();
@@ -22,30 +21,39 @@ export default () => {
         ConnectAttestation | undefined
     >(undefined);
     const [attestationId, setAttestationId] = useAtom(attestationAtom);
-    const [loading, setLoading] = useState(false);
+    const [checking, setChecking] = useState(false);
+    const [attesting, setAttesting] = useState(false);
+    const [revoking, setRevoking] = useState(false);
     const [matrixPublicKey, setMatrixPublicKey] = useState<
         string | undefined
     >();
+
     async function checkAttestation() {
         if (!account.address) {
             return;
         }
+        try {
+            setChecking(true);
+            const matrixPublicKey =
+                matrix.publicKey() || (await getMatrixPublicKey());
 
-        const matrixPublicKey =
-            matrix.publicKey() || (await getMatrixPublicKey());
+            if (!matrixPublicKey) {
+                console.log("Couldn't retrieve Matrix public key");
+                return;
+            }
 
-        if (!matrixPublicKey) {
-            console.log("Couldn't retrieve Matrix public key");
-            return;
+            setMatrixPublicKey(matrixPublicKey);
+
+            const attestation = await getConnectAttestation(
+                account.address,
+                matrixPublicKey
+            );
+            setAttestation(attestation);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setChecking(false);
         }
-
-        setMatrixPublicKey(matrixPublicKey);
-
-        const attestation = await getConnectAttestation(
-            account.address,
-            matrixPublicKey
-        );
-        setAttestation(attestation);
     }
 
     useEffect(() => {
@@ -68,7 +76,7 @@ export default () => {
             return;
         }
         try {
-            setLoading(true);
+            setAttesting(true);
             const uId = await attestConnect(signer, matrixPublicKey);
             console.log('Attestation id:', uId);
             if (uId) {
@@ -77,16 +85,16 @@ export default () => {
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            setAttesting(false);
         }
     }
 
-    async function revokeAttestation() {
+    async function revoke() {
         if (!signer || !account.address || !matrixPublicKey) {
             return;
         }
         try {
-            setLoading(true);
+            setRevoking(true);
             const attestation = await getConnectAttestation(
                 account.address,
                 matrixPublicKey
@@ -98,41 +106,17 @@ export default () => {
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            setRevoking(false);
         }
     }
 
-    return (
-        <div>
-            {attestationId ? (
-                <>
-                    <a
-                        href={`https://base-goerli.easscan.org/attestation/view/${attestationId}`}
-                        target="_blank"
-                        className="hover:underline"
-                    >
-                        Attested!
-                    </a>
-                    <span
-                        className={`ml-1 cursor-pointer underline ${
-                            loading && 'pointer-events-none animate-pulse'
-                        }`}
-                        onClick={revokeAttestation}
-                    >
-                        Revoke
-                    </span>
-                </>
-            ) : (
-                <Button
-                    disabled={!signer}
-                    onClick={attest}
-                    className={
-                        loading ? 'pointer-events-none animate-pulse' : ''
-                    }
-                >
-                    Attest
-                </Button>
-            )}
-        </div>
-    );
+    return {
+        attestation,
+        attestationId,
+        checking,
+        attesting,
+        revoking,
+        attest,
+        revoke,
+    };
 };

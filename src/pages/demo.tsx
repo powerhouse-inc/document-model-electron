@@ -1,9 +1,10 @@
 import { useAtomValue } from 'jotai';
-import * as sdk from 'matrix-js-sdk';
-import { useEffect, useState } from 'react';
-import { Input } from 'react-aria-components';
-import { attestationAtom } from 'src/store';
-import { MatrixMessage, getMatrixPublicKey, useMatrix } from 'src/store/matrix';
+import { ReactElement, useEffect, useState } from 'react';
+import Button from 'src/components/button';
+import Chat from 'src/components/chat';
+import DotsLoader from 'src/components/dots-loader';
+import { attestationAtom, useAttestation } from 'src/store';
+import { getMatrixPublicKey, useMatrix } from 'src/store/matrix';
 import {
     ConnectAttestation,
     checkConnectAttestation,
@@ -20,9 +21,49 @@ type Step =
     | 'CONNECTED_TO_MATRIX'
     | 'FAILED_CONNECT_MATRIX';
 
-const STEP_WAIT_TIME = 0;
+const stepComponent = (text: string) => () => <p>{text}</p>;
 
-const ROOM_ID = '!UERWTrvtwSimPWPsLo:powerhouse.matrix';
+const stepText: Record<Step, (arg?: string) => ReactElement> = {
+    CONNECT_WALLET: stepComponent('Connect wallet to proceed'),
+    CHECKING_ATTESTATION: () => (
+        <>
+            <span>Checking app permissions</span>
+            <DotsLoader />
+        </>
+    ),
+    NO_ATTESTATION: () => {
+        const { attest, attesting } = useAttestation();
+        return (
+            <>
+                <span>Attest this device belongs to you:</span>
+                <Button
+                    onClick={attest}
+                    className={`ml-2 text-white ${
+                        attesting ? 'pointer-events-none animate-pulse' : ''
+                    }`}
+                >
+                    Submit
+                </Button>
+            </>
+        );
+    },
+    ATTESTED: stepComponent('Permission has been granted'),
+    CONNECTING_TO_MATRIX: () => (
+        <>
+            <span>Connecting to chat</span>
+            <DotsLoader />
+        </>
+    ),
+    CONNECTED_TO_MATRIX: () => {
+        const [matrix] = useMatrix();
+        return <p>Connected as {matrix.client?.getUserId() ?? ''}</p>;
+    },
+    FAILED_CONNECT_MATRIX: stepComponent('Connection failed'),
+} as const;
+
+const STEP_WAIT_TIME = 1000;
+
+const ROOM_ID = '!nFdUQBnOpwYRrFWmLF:powerhouse.matrix';
 
 function Demo() {
     const account = useAccount();
@@ -35,8 +76,6 @@ function Demo() {
     >();
     const [matrix, initMatrix] = useMatrix();
     const [step, setStep] = useState<Step>('CONNECT_WALLET');
-    const [messages, setMessages] = useState<MatrixMessage[]>([]);
-    const [room, setRoom] = useState<sdk.Room>();
 
     async function checkAttestation() {
         if (!account.address) {
@@ -82,9 +121,11 @@ function Demo() {
         await new Promise(resolve => setTimeout(resolve, STEP_WAIT_TIME));
         if (!matrix.publicKey()) {
             setStep('CONNECTING_TO_MATRIX');
-            await new Promise(resolve => setTimeout(resolve, STEP_WAIT_TIME));
             initMatrix(accountAddress, matrixPublicKey)
-                .then(() => {
+                .then(async () => {
+                    await new Promise(resolve =>
+                        setTimeout(resolve, STEP_WAIT_TIME)
+                    );
                     setStep('CONNECTED_TO_MATRIX');
                 })
                 .catch(error => {
@@ -106,60 +147,16 @@ function Demo() {
         }
     }, [attestation, account.address, matrixPublicKey]);
 
-    useEffect(() => {
-        if (step === 'CONNECTED_TO_MATRIX' && matrix.ready) {
-            setTimeout(joinChat, 1000);
-        }
-    }, [step, matrix]);
+    const StepComponent: React.FC = () => stepText[step]();
 
-    async function joinChat() {
-        const room = await matrix.joinRoom(ROOM_ID);
-        if (!room) {
-            throw new Error('Room does not exist.');
-        }
-        setRoom(room);
-        const messages = await matrix.getMessages(room);
-        setMessages(messages);
-        matrix.onMessage(room, newMessage =>
-            setMessages(messages => [...messages, newMessage])
-        );
-    }
-
-    async function sendMessage(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        const form = event.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const message = formData.get('message');
-
-        if (!room) {
-            throw new Error('Room does not exist.');
-        }
-        matrix.sendMessage(room.roomId, message);
-    }
+    const roomId = step === 'CONNECTED_TO_MATRIX' ? ROOM_ID : null;
 
     return (
-        <div className="flex h-full flex-1 flex-col items-stretch p-10">
-            <div>
-                {step.split('_').join(' ')}
-                {step === 'CONNECTED_TO_MATRIX' ? (
-                    <span>: {matrix.client?.getUserId()}</span>
-                ) : null}
+        <div className="flex h-full max-w-5xl flex-1 flex-col items-stretch p-10">
+            <div className="mb-5">
+                <StepComponent />
             </div>
-            <div className="flex-1">
-                {messages.map((message, index) => (
-                    <p key={index}>
-                        <b>{message.sender ?? '-'}:</b>
-                        <span className="ml-2">{message.content?.body}</span>
-                    </p>
-                ))}
-            </div>
-            <form className="" onSubmit={sendMessage}>
-                <Input
-                    className="w-full py-2"
-                    name="message"
-                    placeholder="Send message..."
-                />
-            </form>
+            {roomId && <Chat roomId={roomId} />}
         </div>
     );
 }
