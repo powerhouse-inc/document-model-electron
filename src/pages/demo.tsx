@@ -1,162 +1,103 @@
-import { useAtomValue } from 'jotai';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactComponent as IconPowerhouse } from '@/assets/icons/powerhouse-logo.svg';
+import { ReactComponent as IconRenown } from '@/assets/icons/renown.svg';
+import Header from '@/assets/images/header.jpg';
+import { useEffect, useState } from 'react';
 import Button from 'src/components/button';
 import Chat from 'src/components/chat';
-import DotsLoader from 'src/components/dots-loader';
-import { attestationAtom, useAttestation } from 'src/store';
-import { getMatrixPublicKey, useMatrix } from 'src/store/matrix';
-import {
-    ConnectAttestation,
-    checkConnectAttestation,
-    getConnectAttestation,
-} from 'src/utils/attestation';
-import { useAccount } from 'wagmi';
-
-type Step =
-    | 'CONNECT_WALLET'
-    | 'CHECKING_ATTESTATION'
-    | 'NO_ATTESTATION'
-    | 'ATTESTED'
-    | 'CONNECTING_TO_MATRIX'
-    | 'CONNECTED_TO_MATRIX'
-    | 'FAILED_CONNECT_MATRIX';
-
-const stepComponent = (text: string) => () => <p>{text}</p>;
-
-const stepText: Record<Step, (arg?: string) => ReactElement> = {
-    CONNECT_WALLET: stepComponent('Connect wallet to proceed'),
-    CHECKING_ATTESTATION: () => (
-        <>
-            <span>Checking app permissions</span>
-            <DotsLoader />
-        </>
-    ),
-    NO_ATTESTATION: () => {
-        const { attest, attesting } = useAttestation();
-        return (
-            <>
-                <span>Attest this device belongs to you:</span>
-                <Button
-                    onClick={attest}
-                    className={`ml-2 text-white ${
-                        attesting ? 'pointer-events-none animate-pulse' : ''
-                    }`}
-                >
-                    Submit
-                </Button>
-            </>
-        );
-    },
-    ATTESTED: stepComponent('Permission has been granted'),
-    CONNECTING_TO_MATRIX: () => (
-        <>
-            <span>Connecting to chat</span>
-            <DotsLoader />
-        </>
-    ),
-    CONNECTED_TO_MATRIX: () => {
-        const [matrix] = useMatrix();
-        return <p>Connected as {matrix.client?.getUserId() ?? ''}</p>;
-    },
-    FAILED_CONNECT_MATRIX: stepComponent('Connection failed'),
-} as const;
-
-const STEP_WAIT_TIME = 1000;
+import { getMatrixPublicKey, signChallenge } from 'src/services/matrix';
+import { useAddress, useGetJWT } from 'src/store';
+import { useInitMatrix } from 'src/store/matrix';
 
 const ROOM_ID = '!nFdUQBnOpwYRrFWmLF:powerhouse.matrix';
 
 function Demo() {
-    const account = useAccount();
-    const [attestation, setAttestation] = useState<
-        ConnectAttestation | undefined
-    >(undefined);
-    const attestationId = useAtomValue(attestationAtom);
+    const address = useAddress();
     const [matrixPublicKey, setMatrixPublicKey] = useState<
         string | undefined
     >();
-    const [matrix, initMatrix] = useMatrix();
-    const [step, setStep] = useState<Step>('CONNECT_WALLET');
+    const initMatrix = useInitMatrix();
+    const [authorized, setAuthorized] = useState(false);
+    const getJWT = useGetJWT();
 
-    async function checkAttestation() {
-        if (!account.address) {
-            setStep('CONNECT_WALLET');
+    async function checkAuthorization() {
+        if (!address) {
+            console.error('No address');
             return;
         }
-        setStep('CHECKING_ATTESTATION');
-        const matrixPublicKey = await getMatrixPublicKey();
 
         if (!matrixPublicKey) {
-            setStep('NO_ATTESTATION');
-            console.log("Couldn't retrieve Matrix public key");
+            console.error('No matrix public key');
             return;
         }
 
-        setMatrixPublicKey(matrixPublicKey);
-
-        await new Promise(resolve => setTimeout(resolve, STEP_WAIT_TIME));
         try {
-            const attestation = await getConnectAttestation(
-                account.address,
-                matrixPublicKey
-            );
-            if (attestation) {
-                setAttestation(attestation);
-            } else {
-                setStep('NO_ATTESTATION');
+            const jwt = await getJWT(address, matrixPublicKey, signChallenge);
+            if (!jwt) {
+                throw new Error('JWT was not retrieved');
             }
+            await initMatrix(jwt);
+            setAuthorized(true);
         } catch (error) {
             console.error(error);
-            setStep('NO_ATTESTATION');
         }
     }
 
     useEffect(() => {
-        checkAttestation();
-    }, [account?.address, attestationId]);
-
-    async function connectMatrix(
-        accountAddress: string,
-        matrixPublicKey: string
-    ) {
-        await new Promise(resolve => setTimeout(resolve, STEP_WAIT_TIME));
-        if (!matrix.publicKey()) {
-            setStep('CONNECTING_TO_MATRIX');
-            initMatrix(accountAddress, matrixPublicKey)
-                .then(async () => {
-                    await new Promise(resolve =>
-                        setTimeout(resolve, STEP_WAIT_TIME)
-                    );
-                    setStep('CONNECTED_TO_MATRIX');
-                })
-                .catch(error => {
-                    console.log(error);
-                    setStep('FAILED_CONNECT_MATRIX');
-                });
-        }
-    }
+        getMatrixPublicKey()
+            .then(key => key && setMatrixPublicKey(key))
+            .catch(error =>
+                console.error("Couldn't retrieve Matrix public key", error)
+            );
+    }, []);
 
     useEffect(() => {
-        if (
-            account.address &&
-            matrixPublicKey &&
-            attestation &&
-            checkConnectAttestation(attestation, matrixPublicKey)
-        ) {
-            setStep('ATTESTED');
-            connectMatrix(account.address, matrixPublicKey);
+        if (matrixPublicKey) {
+            checkAuthorization();
         }
-    }, [attestation, account.address, matrixPublicKey]);
+    }, [address, matrixPublicKey]);
 
-    const StepComponent: React.FC = () => stepText[step]();
-
-    const roomId = step === 'CONNECTED_TO_MATRIX' ? ROOM_ID : null;
+    const roomId = authorized ? ROOM_ID : null;
 
     return (
-        <div className="flex h-full max-w-5xl flex-1 flex-col items-stretch p-10">
-            <div className="mb-5">
-                <StepComponent />
+        <div className="flex h-full flex-1 flex-col items-center justify-center p-10">
+            <div className="max-w-[482px] overflow-auto rounded-3xl shadow-modal">
+                <div className="relative">
+                    <img src={Header} className="h-[106px]" />
+                    <IconPowerhouse className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform" />
+                </div>
+                <div className="flex flex-col items-center bg-light px-8 pb-8 pt-10">
+                    <h2 className="mb-3 text-3xl font-semibold">Log in with</h2>
+                    <IconRenown className="mb-3" />
+                    <p className="mb-10 text-center text-lg leading-6 text-neutral-4">
+                        Click on the button below to start signing messages in
+                        Connect on behalf of your Ethereum identity
+                    </p>
+                    <Button
+                        disabled={!matrixPublicKey}
+                        className="mb-3 w-full bg-action p-0 text-white shadow-none transition-colors hover:bg-action/75"
+                    >
+                        <a
+                            className="block h-10 px-7 leading-10"
+                            href={`${
+                                import.meta.env.VITE_RENOWN_URL
+                            }?connect=${encodeURIComponent(
+                                matrixPublicKey || ''
+                            )}`}
+                        >
+                            Authorize Connect
+                        </a>
+                    </Button>
+                    <Button className="h-10 w-full bg-neutral-2/10 p-0 text-accent-5 shadow-none transition-colors hover:bg-neutral-1">
+                        Cancel
+                    </Button>
+                </div>
             </div>
-            {roomId && <Chat roomId={roomId} />}
+            <div className="mb-5"></div>
+            {roomId && (
+                <div className="max-w-5xl">
+                    <Chat roomId={roomId} />
+                </div>
+            )}
         </div>
     );
 }

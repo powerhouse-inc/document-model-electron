@@ -7,6 +7,7 @@ module.exports = {
     theme: {
         extend: {
             colors: {
+                action: '#0084FF',
                 neutral: {
                     1: 'rgba(var(--color-neutral-1))',
                     2: 'rgba(var(--color-neutral-2))',
@@ -24,6 +25,7 @@ module.exports = {
             },
             boxShadow: {
                 button: '0px 2px 4px 0px rgba(0, 0, 0, 0.15)',
+                modal: '0px 0px 24px 4px rgba(0, 0, 0, 0.05), 0px 44px 48px -12px rgba(0, 0, 0, 0.15), 0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
             },
         },
     },

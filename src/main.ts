@@ -340,8 +340,8 @@ app.on('activate', () => {
 });
 
 // keeps track of the logged in user
-let user: string;
-ipcMain.handle('user', () => user);
+let address: string;
+ipcMain.handle('address', () => address);
 
 // deeplink login
 

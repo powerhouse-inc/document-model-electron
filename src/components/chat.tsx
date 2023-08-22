@@ -1,7 +1,8 @@
 import * as sdk from 'matrix-js-sdk';
 import { useEffect, useRef, useState } from 'react';
 import { Input } from 'react-aria-components';
-import { MatrixMessage, useMatrix } from 'src/store/matrix';
+import { MatrixMessage } from 'src/services/matrix';
+import { useMatrix } from 'src/store/matrix';
 import Button from './button';
 
 interface IProps {
@@ -14,7 +15,7 @@ function senderText(sender: string) {
 }
 
 export default ({ roomId }: IProps) => {
-    const [matrix] = useMatrix();
+    const matrix = useMatrix();
     const [messages, setMessages] = useState<MatrixMessage[]>([]);
     const [room, setRoom] = useState<sdk.Room>();
     const input = useRef<HTMLInputElement>(null);

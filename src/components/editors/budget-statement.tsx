@@ -15,7 +15,7 @@ export default function Editor({
     onChange,
 }: EditorProps<BudgetStatementState, BudgetStatementAction>) {
     const theme = useAtomValue(themeAtom);
-    const [matrix] = useMatrix();
+    const matrix = useMatrix();
 
     const [budgetStatement, dispatch] =
         BudgetStatement.useBudgetStatementReducer(document);

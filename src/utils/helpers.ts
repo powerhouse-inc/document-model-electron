@@ -1,15 +1,28 @@
-type AsyncFunction<T> = (...args: any[]) => Promise<T>;
-
-export function executeOnce<T>(fn: AsyncFunction<T>): AsyncFunction<T> {
-    let resultPromise: Promise<T> | null = null;
+export function executeOnce<
+    T extends (...args: Parameters<T>) => ReturnType<T>
+>(fn: T): T {
+    let resultPromise: ReturnType<T>;
     let hasExecuted = false;
 
-    return async function (...args: any[]): Promise<T> {
+    return function (...args: Parameters<typeof fn>) {
         if (!hasExecuted) {
             hasExecuted = true;
-            resultPromise = fn(...args);
+            const result = fn(...args);
+            resultPromise = result;
         }
+        return resultPromise;
+    } as T;
+}
 
-        return await resultPromise!;
-    };
+export function getQueryParam(name: string) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+export function isDesktopApp() {
+    return navigator.userAgent.includes('Electron');
+}
+
+export function isMac() {
+    return window.navigator.appVersion.includes('Mac');
 }

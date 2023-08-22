@@ -5,13 +5,7 @@ import { ReactComponent as IconSettings } from '@/assets/icons/settings.svg';
 import { useAtom, useAtomValue } from 'jotai';
 import { NavLink, To, useNavigate } from 'react-router-dom';
 import { useOpenFile } from 'src/hooks';
-import {
-    Tab,
-    sidebarCollapsedAtom,
-    themeAtom,
-    useTabs,
-    userAtom,
-} from 'src/store';
+import { Tab, sidebarCollapsedAtom, themeAtom, useTabs } from 'src/store';
 import { saveFile } from 'src/utils/file';
 import ThemeSelector from './theme-selector';
 
@@ -101,7 +95,6 @@ export default function () {
     const [collapsed, setCollapsed] = useAtom(sidebarCollapsedAtom);
 
     const theme = useAtomValue(themeAtom);
-    const user = useAtomValue(userAtom);
     const { addTab, selectedTab, getItem } = useTabs();
 
     function toggleCollapse() {

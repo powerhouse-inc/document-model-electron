@@ -54,7 +54,7 @@ const electronApi = {
             ipcRenderer.off('login', listener);
         };
     },
-    user: async () => (await ipcRenderer.invoke('user')) as string | undefined,
+    address: async () => (await ipcRenderer.invoke('address')) as string | null,
     openURL: (url: string) => {
         ipcRenderer.invoke('openURL', url);
     },
