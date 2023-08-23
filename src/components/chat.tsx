@@ -65,7 +65,7 @@ export default ({ roomId }: IProps) => {
                         <b className="font-medium text-neutral-4">
                             {senderText(message.sender ?? '-')}:
                         </b>
-                        <span className="ml-2 text-neutral-6">
+                        <span className="ml-2 text-text/90">
                             {message.content?.body}
                         </span>
                     </p>
