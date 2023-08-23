@@ -30,22 +30,23 @@ export const useGetJWT = () => {
     async function getJWT(
         address: string,
         publicKey: string,
-        signChallenge: (challenge: string) => Promise<string>
+        signChallenge: (challenge: string) => Promise<string>,
+        overrideJWT = jwt
     ) {
-        if (!jwt) {
+        if (!overrideJWT) {
             const newJWT = await _getJWT(address, publicKey, signChallenge);
             setJWT(newJWT);
             setAddress(address);
             return newJWT;
         } else {
             // checks if the stored jwt corresponds to the current publicKey and address
-            const auth = await getAuth(jwt);
+            const auth = await getAuth(overrideJWT);
             if (auth.address !== address || auth.publicKey !== publicKey) {
                 // if not, deletes it so a new one is retrieved
                 setJWT(null);
-                return getJWT(address, publicKey, signChallenge);
+                return getJWT(address, publicKey, signChallenge, null);
             }
-            return jwt;
+            return overrideJWT;
         }
     }
 

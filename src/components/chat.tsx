@@ -58,23 +58,29 @@ export default ({ roomId }: IProps) => {
     }
 
     return (
-        <div className="flex max-h-full flex-1 flex-col rounded-xl bg-light p-5 shadow-modal">
+        <div className="flex w-full flex-1 flex-col overflow-hidden px-4 pb-4">
             <div className="flex-shrink overflow-auto">
                 {messages.map((message, index) => (
-                    <p key={index}>
-                        <b>{senderText(message.sender ?? '-')}:</b>
-                        <span className="ml-2">{message.content?.body}</span>
+                    <p key={index} className="first:pt-2">
+                        <b className="font-medium text-neutral-4">
+                            {senderText(message.sender ?? '-')}:
+                        </b>
+                        <span className="ml-2 text-neutral-6">
+                            {message.content?.body}
+                        </span>
                     </p>
                 ))}
             </div>
-            <form className="mt-2 flex items-stretch" onSubmit={sendMessage}>
+            <form className="mt-2 flex items-end" onSubmit={sendMessage}>
                 <Input
                     ref={input}
-                    className="w-full py-2"
+                    className="w-full border-neutral-3 py-2 outline-none focus:border-text active:border-text"
                     name="message"
                     placeholder="Send message..."
                 />
-                <Button className="-mb-1 ml-8 px-8 text-text">Send</Button>
+                <Button className="-mb-[2px] ml-4 h-9 bg-action px-4 py-0 leading-8 text-white hover:bg-action/75">
+                    Send
+                </Button>
             </form>
         </div>
     );
