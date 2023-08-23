@@ -43,6 +43,8 @@ global.Olm = Olm.default ? Olm.default : Olm;
 //     return [result![0], decodedKey];
 // }
 
+const MATRIX_URL = import.meta.env.VITE_MATRIX_URL;
+
 export type MatrixMessage = {
     sender?: string;
     publicKey?: string;
@@ -61,7 +63,7 @@ const store = new sdk.IndexedDBStore({
 
 async function _getMatrixCrypto() {
     const client = sdk.createClient({
-        baseUrl: 'http://localhost:8008/',
+        baseUrl: MATRIX_URL,
         userId: 'dummy',
         deviceId: 'dummy',
         cryptoStore,
@@ -93,7 +95,7 @@ async function _init({ jwt }: InitOptions) {
 
     const machineId = await window.electronAPI?.getMachineId(); // TODO
     const client = sdk.createClient({
-        baseUrl: 'http://localhost:8008/',
+        baseUrl: MATRIX_URL,
         deviceId: 'device123', // TODO
         store,
         cryptoStore,
