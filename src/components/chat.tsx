@@ -59,7 +59,7 @@ export default ({ roomId }: IProps) => {
 
     return (
         <div className="flex w-full flex-1 flex-col overflow-hidden px-4 pb-4">
-            <div className="flex-shrink overflow-auto">
+            <div className="min-h-[20vh] flex-shrink overflow-auto">
                 {messages.map((message, index) => (
                     <p key={index} className="first:pt-2">
                         <b className="font-medium text-neutral-4">

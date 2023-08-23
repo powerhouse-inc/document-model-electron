@@ -8,7 +8,7 @@ import { getMatrixPublicKey, signChallenge } from 'src/services/matrix';
 import { useAddress, useGetJWT } from 'src/store';
 import { useInitMatrix } from 'src/store/matrix';
 
-const ROOM_ID = '!nFdUQBnOpwYRrFWmLF:powerhouse.matrix';
+const ROOM_ID = import.meta.env.VITE_DEMO_MATRIX_ROOM_ID;
 
 function Demo() {
     const address = useAddress();
