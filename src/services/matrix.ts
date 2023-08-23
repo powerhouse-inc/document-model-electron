@@ -1,7 +1,9 @@
 import * as Olm from '@matrix-org/olm';
 import * as sdk from 'matrix-js-sdk';
 import { executeOnce } from 'src/utils/helpers';
-global.Olm = Olm;
+
+// @ts-ignore handle prod and dev
+global.Olm = Olm.default ? Olm.default : Olm;
 
 // async function getSecretStorageKey({
 //     keys,
