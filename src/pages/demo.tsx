@@ -16,6 +16,7 @@ function Demo() {
         string | undefined
     >();
     const initMatrix = useInitMatrix();
+    const [checking, setChecking] = useState(true);
     const [authorized, setAuthorized] = useState(false);
     const getJWT = useGetJWT();
 
@@ -45,20 +46,26 @@ function Demo() {
     useEffect(() => {
         getMatrixPublicKey()
             .then(key => key && setMatrixPublicKey(key))
-            .catch(error =>
-                console.error("Couldn't retrieve Matrix public key", error)
-            );
+            .catch(error => {
+                console.error("Couldn't retrieve Matrix public key", error);
+                setChecking(false);
+            });
     }, []);
 
     useEffect(() => {
         if (matrixPublicKey) {
-            checkAuthorization();
+            setChecking(true);
+            checkAuthorization().finally(() => setChecking(false));
         }
     }, [address, matrixPublicKey]);
 
     const roomId = authorized ? ROOM_ID : null;
 
-    return (
+    if (checking) {
+        return;
+    }
+
+    return !authorized ? (
         <div className="flex h-full flex-1 flex-col items-center justify-center p-10">
             <div className="max-w-[482px] overflow-auto rounded-3xl shadow-modal">
                 <div className="relative">
@@ -92,13 +99,13 @@ function Demo() {
                     </Button>
                 </div>
             </div>
-            <div className="mb-5"></div>
-            {roomId && (
-                <div className="max-w-5xl">
-                    <Chat roomId={roomId} />
-                </div>
-            )}
         </div>
+    ) : (
+        roomId && (
+            <div className="h-full max-w-5xl overflow-hidden p-10">
+                <Chat roomId={roomId} />
+            </div>
+        )
     );
 }
 

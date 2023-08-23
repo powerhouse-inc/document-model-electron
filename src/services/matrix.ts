@@ -165,11 +165,6 @@ async function eventToMessage(
     client: sdk.MatrixClient,
     event: sdk.MatrixEvent
 ): Promise<MatrixMessage | undefined> {
-    if (event.isEncrypted()) {
-        if (event.isDecryptionFailure()) {
-            console.log('FAILED DECRYPTION');
-        }
-    }
     if (event.getType() === 'm.room.message') {
         const device = await client.getEventSenderDeviceInfo(event);
         return {
@@ -250,24 +245,32 @@ export function projectMatrixClient(
             if (!matrixClient) {
                 return;
             }
-            room.on(
-                sdk.RoomEvent.Timeline,
-                async (event, room, toStartOfTimeline, removed, data) => {
-                    if (!toStartOfTimeline && data.liveEvent) {
-                        const event = room?.getLiveTimeline().getEvents().pop();
-                        if (!event) {
-                            return;
-                        }
-                        const message = await eventToMessage(
-                            matrixClient,
-                            event
-                        );
-                        if (message) {
-                            callback(message);
-                        }
-                    }
+
+            async function handleMessage(
+                event: sdk.MatrixEvent,
+                room: sdk.Room | undefined,
+                toStartOfTimeline: boolean | undefined,
+                removed: boolean,
+                data: sdk.IRoomTimelineData
+            ) {
+                if (!matrixClient || toStartOfTimeline || !data.liveEvent) {
+                    return;
                 }
-            );
+                const events = data.timeline.getEvents();
+                const msgEvent = events[events.length - 1];
+                if (!msgEvent) {
+                    return;
+                }
+                const message = await eventToMessage(matrixClient, msgEvent);
+                if (message) {
+                    callback(message);
+                }
+            }
+
+            room.on(sdk.RoomEvent.Timeline, handleMessage);
+            return () => {
+                room.off(sdk.RoomEvent.Timeline, handleMessage);
+            };
         },
         async restorePassphrase() {
             if (!matrixClient) {

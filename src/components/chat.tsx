@@ -28,13 +28,17 @@ export default ({ roomId }: IProps) => {
         setRoom(room);
         const messages = await matrix.getMessages(room);
         setMessages(messages);
-        matrix.onMessage(room, newMessage =>
-            setMessages(messages => [...messages, newMessage])
-        );
+
+        return matrix.onMessage(room, newMessage => {
+            setMessages(messages => [...messages, newMessage]);
+        });
     }
 
     useEffect(() => {
-        joinChat(roomId);
+        const leaveChat = joinChat(roomId);
+        return () => {
+            leaveChat.then(leave => leave?.());
+        };
     }, [roomId]);
 
     async function sendMessage(event: React.FormEvent<HTMLFormElement>) {
@@ -54,8 +58,8 @@ export default ({ roomId }: IProps) => {
     }
 
     return (
-        <div className="flex flex-1 flex-col">
-            <div className="flex-1">
+        <div className="flex max-h-full flex-1 flex-col rounded-xl bg-light p-5 shadow-modal">
+            <div className="flex-shrink overflow-auto">
                 {messages.map((message, index) => (
                     <p key={index}>
                         <b>{senderText(message.sender ?? '-')}:</b>
@@ -63,7 +67,7 @@ export default ({ roomId }: IProps) => {
                     </p>
                 ))}
             </div>
-            <form className="flex items-stretch" onSubmit={sendMessage}>
+            <form className="mt-2 flex items-stretch" onSubmit={sendMessage}>
                 <Input
                     ref={input}
                     className="w-full py-2"
