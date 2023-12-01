@@ -1,11 +1,10 @@
 import {
-    ActionType,
     BaseTreeItem,
     DriveViewProps,
-    ItemType,
     TreeItem,
     decodeID,
     encodeID,
+    getRootPath,
     useItemActions,
 } from '@powerhousedao/design-system';
 import { DocumentDriveState, Node } from 'document-model-libs/document-drive';
@@ -37,14 +36,14 @@ export function driveToBaseItems(
         id: driveID,
         label: drive.name,
         path: driveID,
-        type: ItemType.LocalDrive,
+        type: 'LOCAL_DRIVE',
     };
 
     const nodes: Array<BaseTreeItem> = drive.nodes.map((node, _i, nodes) => ({
         id: node.id,
         label: node.name,
         path: path.join(driveID, getNodePath(node, nodes)),
-        type: node.kind === 'folder' ? ItemType.Folder : ItemType.File,
+        type: node.kind === 'folder' ? 'FOLDER' : 'FILE',
     }));
     return [driveNode, ...nodes];
 }
@@ -54,8 +53,14 @@ export function useDrivesContainer() {
     const { showModal } = useModal();
     const [, setSelectedPath] = useSelectedPath();
 
-    const { addFolder, renameNode, deleteDrive, renameDrive, documentDrives } =
-        useDocumentDriveServer();
+    const {
+        addFolder,
+        renameNode,
+        deleteDrive,
+        renameDrive,
+        documentDrives,
+        copyOrMoveNode,
+    } = useDocumentDriveServer();
 
     function addVirtualNewFolder(item: TreeItem, driveID: string) {
         const driveNodes = documentDrives?.find(
@@ -78,8 +83,8 @@ export function useDrivesContainer() {
             id: uuid(),
             label: virtualFolderName,
             path: path.join(item.path, virtualPathName),
-            type: ItemType.Folder,
-            action: ActionType.New,
+            type: 'FOLDER',
+            action: 'NEW',
         });
     }
 
@@ -104,7 +109,7 @@ export function useDrivesContainer() {
     }
 
     const onItemClick: DriveViewProps['onItemClick'] = (_event, item) => {
-        if (item.type !== ItemType.File) {
+        if (item.type !== 'FILE') {
             setSelectedPath(item.path);
             actions.toggleExpandedAndSelect(item.id);
         }
@@ -122,15 +127,13 @@ export function useDrivesContainer() {
                 addVirtualNewFolder(item, driveID);
                 break;
             case 'rename':
-                actions.setItemAction(item.id, ActionType.Update);
+                actions.setItemAction(item.id, 'UPDATE');
                 break;
             case 'delete':
                 if (
-                    [
-                        ItemType.CloudDrive,
-                        ItemType.LocalDrive,
-                        ItemType.PublicDrive,
-                    ].includes(item.type)
+                    ['cloud-drive', 'local-drive', 'public-drive'].includes(
+                        item.type
+                    )
                 ) {
                     deleteDrive(decodeID(item.id));
                 } else {
@@ -158,9 +161,37 @@ export function useDrivesContainer() {
     const onSubmitInput = (item: TreeItem, onCancel?: () => void) => {
         const driveID = item.path.split('/')[0];
 
-        if (item.action === ActionType.New) {
+        if (item.action === 'NEW') {
             actions.deleteVirtualItem(item.id);
             addNewFolder(item, driveID, onCancel);
+            return;
+        }
+
+        if (
+            item.action === 'UPDATE_AND_COPY' ||
+            item.action === 'UPDATE_AND_MOVE'
+        ) {
+            actions.deleteVirtualItem(item.id);
+
+            const driveID = getRootPath(item.path);
+            const srcID = item.id.replace('(from)', '');
+            const targetPath = path.dirname(item.path);
+            const operation =
+                item.action === 'UPDATE_AND_COPY' ? 'copy' : 'move';
+
+            let targetId = targetPath.split('/').pop() ?? '';
+
+            if (targetId === driveID || targetId == '.') {
+                targetId = '';
+            }
+
+            copyOrMoveNode(
+                decodeID(driveID),
+                srcID,
+                decodeID(targetId),
+                operation,
+                item.label
+            );
             return;
         }
 
