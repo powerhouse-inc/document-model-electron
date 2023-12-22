@@ -5,7 +5,7 @@ import type {
     Operation,
     Reducer,
 } from 'document-model/document';
-import { useMemo, useReducer, useState } from 'react';
+import { useEffect, useMemo, useReducer, useState } from 'react';
 
 export function wrapReducer<State, A extends Action, LocalState>(
     reducer: Reducer<State, A, LocalState>,
@@ -43,6 +43,11 @@ export function useDocumentDispatch<State, A extends Action, LocalState>(
     (action: A | BaseAction) => Operation
 ] {
     const [state, setState] = useState(initialState);
+
+    useEffect(() => {
+        setState(initialState);
+    }, [initialState]);
+
     const reducer: Reducer<State, A, LocalState> = useMemo(
         () => wrapReducer(documentReducer, onError),
         [documentReducer, onError]
