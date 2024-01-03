@@ -49,10 +49,8 @@ const Content = () => {
     const [selectedFileNode, setSelectedFileNode] = useState<
         { drive: string; id: string } | undefined
     >(undefined);
-    const [selectedDocument, , addOperation] = useFileNodeDocument(
-        decodedDriveID,
-        selectedFileNode?.id
-    );
+    const [selectedDocument, updateDocument, addOperation] =
+        useFileNodeDocument(decodedDriveID, selectedFileNode?.id);
 
     // preload document editors
     useEffect(() => {
@@ -154,6 +152,17 @@ const Content = () => {
     };
 
     const onDocumentChangeHandler = (document: Document) => {
+        // update document if it has more operations than the selected document
+        if (
+            selectedDocument &&
+            (document.operations.global.length >
+                selectedDocument.operations.global.length ||
+                document.operations.local.length >
+                    selectedDocument.operations.local.length)
+        ) {
+            updateDocument(document);
+        }
+
         const item = selectedFileNode?.id
             ? getItemById(selectedFileNode.id)
             : undefined;
