@@ -1540,11 +1540,6 @@
     "@radix-ui/react-dialog" "^1.0.5"
     react-hook-form "^7.48.2"
 
-"@prisma/client@5.7.1":
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-5.7.1.tgz#a124afd05663267f7255a639a81d28303684a063"
-  integrity sha512-TUSa4nUcC4nf/e7X3jyO1pEd6XcI/TLRCA0KjkA46RDIpxUaRsBYEOqITwXRW2c0bMFyKcCRXrH4f7h4q9oOlg==
-
 "@radix-ui/primitive@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/primitive/-/primitive-1.0.1.tgz#e46f9958b35d10e9f6dc71c497305c22e3e55dbd"
@@ -4500,23 +4495,22 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
-document-drive@^0.0.23:
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/document-drive/-/document-drive-0.0.23.tgz#d4051ba150bda97dc0f9a64a925357d7fdeec914"
-  integrity sha512-lyYxcnmDKleiWrAFxp2+L0PmOFM98UCfrPt7eOYWbosy/WQ1uYl+ejlt6XpCinRqBThPGx50iyIE/P94mUtIwA==
+document-drive@^0.0.26:
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/document-drive/-/document-drive-0.0.26.tgz#4c701ea127aa9ef29cd7f93643104782f1fb8eb0"
+  integrity sha512-1QJ1486rDZQAHKP4F7PGdsaZRE7rCuRv5VbWn5Li3WCGGBvNCm8HKYqRVt1Xx60b9vsRkxg0Jo0auS0Sll665w==
   dependencies:
-    "@prisma/client" "5.7.1"
     sanitize-filename "^1.6.3"
 
-document-model-libs@^1.1.31:
-  version "1.1.31"
-  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.31.tgz#0c0711780e9a3800a0d315eac911c17ea67d35a2"
-  integrity sha512-KKC3S7qoHBBimLkcV5rrFOLCxsgiLZ8NDmzrhbfRIlu3EnFxi2BuagfqpcanxirNI9/IlksfxmwWNFQhDR9RaA==
+document-model-libs@^1.1.32:
+  version "1.1.32"
+  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.32.tgz#add52d3d9423f86f822996e2ec8ba3e4c606fd9e"
+  integrity sha512-n9vMWIlVH6OpHEQvIl1Vztfqoz2R9KK2lCJtkGr3Zfv6InyXiWXhMIDPJ3uPCJEOig1PfNkkPiV0FjPsYuFYtg==
 
-document-model@^1.0.21:
-  version "1.0.21"
-  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.21.tgz#b2f6c8acd0b70ca0ababfba5f97a42defc026028"
-  integrity sha512-pIogMqceXfMNwAO3QzIoObhbFvqqVI5zoi3MI6BUQhi4QJRhX3arp1jKarjpp7vkQ9PuHe3pXR+0zovGmcbseA==
+document-model@^1.0.22:
+  version "1.0.22"
+  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.22.tgz#560af4b15ea1c0ae24161739c580be859fe9115d"
+  integrity sha512-YIHusHYr13qUQAu9T6Fqze7Ta93o8On8OpxZHgv/XqxFtXPJsRryO8bLK/M2/rIv7fWhkvx0pinJeEiq4AF5fQ==
   dependencies:
     immer "^10.0.2"
     json-stringify-deterministic "^1.0.10"
