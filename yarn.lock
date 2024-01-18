@@ -4502,15 +4502,15 @@ document-drive@^0.0.27:
   dependencies:
     sanitize-filename "^1.6.3"
 
-document-model-libs@^1.1.32:
-  version "1.1.32"
-  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.32.tgz#add52d3d9423f86f822996e2ec8ba3e4c606fd9e"
-  integrity sha512-n9vMWIlVH6OpHEQvIl1Vztfqoz2R9KK2lCJtkGr3Zfv6InyXiWXhMIDPJ3uPCJEOig1PfNkkPiV0FjPsYuFYtg==
+document-model-libs@^1.1.33:
+  version "1.1.33"
+  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.33.tgz#720c6f346a9560e5393cbf8354e968eefafbf92d"
+  integrity sha512-LvGSB1yOOmtBFwGoIz2rv7v7q1fwH96r/DlmZsLHpZDLiWt1jK+ycxnHWhCVq7lCDwyqzcdVsyn7xpUAWSpbDA==
 
-document-model@^1.0.22:
-  version "1.0.22"
-  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.22.tgz#560af4b15ea1c0ae24161739c580be859fe9115d"
-  integrity sha512-YIHusHYr13qUQAu9T6Fqze7Ta93o8On8OpxZHgv/XqxFtXPJsRryO8bLK/M2/rIv7fWhkvx0pinJeEiq4AF5fQ==
+document-model@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.23.tgz#96bd0d0e119bb8c731a473ddb1b215c22e922887"
+  integrity sha512-CbuqLSOlI3LxnDMrD1yVxX5Z0tZmQnrPpwxC03vSY4ooYY2zm6QnuKqJ3lCHkg4KNt/3r5sMmApKQlXeFDSgCw==
   dependencies:
     immer "^10.0.2"
     json-stringify-deterministic "^1.0.10"
