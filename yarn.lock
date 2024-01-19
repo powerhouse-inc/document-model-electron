@@ -4507,10 +4507,10 @@ document-model-libs@^1.1.33:
   resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.33.tgz#720c6f346a9560e5393cbf8354e968eefafbf92d"
   integrity sha512-LvGSB1yOOmtBFwGoIz2rv7v7q1fwH96r/DlmZsLHpZDLiWt1jK+ycxnHWhCVq7lCDwyqzcdVsyn7xpUAWSpbDA==
 
-document-model@^1.0.23:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.23.tgz#96bd0d0e119bb8c731a473ddb1b215c22e922887"
-  integrity sha512-CbuqLSOlI3LxnDMrD1yVxX5Z0tZmQnrPpwxC03vSY4ooYY2zm6QnuKqJ3lCHkg4KNt/3r5sMmApKQlXeFDSgCw==
+document-model@^1.0.24:
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/document-model/-/document-model-1.0.24.tgz#51b190b511f841630fca5da5d96470811ac89d0e"
+  integrity sha512-Kus5anpe/WCdqgXcF5G013CMucXLXI7eTZ6u6Uey2vKlJyHTJ29/ME2z7SILvTzTHeL8YwH2p31h9gG0x1F3hA==
   dependencies:
     immer "^10.0.2"
     json-stringify-deterministic "^1.0.10"
