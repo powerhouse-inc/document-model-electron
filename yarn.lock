@@ -4502,10 +4502,10 @@ document-drive@^0.0.27:
   dependencies:
     sanitize-filename "^1.6.3"
 
-document-model-libs@^1.1.33:
-  version "1.1.33"
-  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.33.tgz#720c6f346a9560e5393cbf8354e968eefafbf92d"
-  integrity sha512-LvGSB1yOOmtBFwGoIz2rv7v7q1fwH96r/DlmZsLHpZDLiWt1jK+ycxnHWhCVq7lCDwyqzcdVsyn7xpUAWSpbDA==
+document-model-libs@^1.1.34:
+  version "1.1.34"
+  resolved "https://registry.yarnpkg.com/document-model-libs/-/document-model-libs-1.1.34.tgz#a9c88d25f889380a2e94759e0d5e9f178f4a2079"
+  integrity sha512-dHpwD3u0uSH2DPBISMdcj7PKQv9K2a9Qgih63ry+pQQiPJtGlN5jBhBv55cDx2ZKhJsqsqts7RF/yooeEAmVeA==
 
 document-model@^1.0.24:
   version "1.0.24"
