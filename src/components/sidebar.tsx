@@ -109,10 +109,6 @@ export default function () {
         />
     );
 
-    const login = () => {
-        window.electronAPI?.openURL('http://localhost:3000/');
-    };
-
     const handleOpenFile = useOpenFile(async document => {
         addTab(await Tab.fromDocument(document));
     });

@@ -13,6 +13,7 @@ import path from 'path';
 import store from './app/store';
 import { Theme } from './store';
 import { loadFile, saveFile } from './utils/file';
+import { addDeeplink } from './app/deeplink';
 
 const isMac = process.platform === 'darwin';
 
@@ -345,19 +346,18 @@ ipcMain.handle('address', () => address);
 
 // deeplink login
 
-// const appProtocol = isDev ? 'connect-dev' : 'connect';
+const appProtocol = 'connect';
 
-// addDeeplink(app, appProtocol, (event, url) => {
-//     // gets user address from url
-//     const address = url.slice(`${appProtocol}://`.length);
-//     user = address;
+addDeeplink(app, appProtocol, (event, url) => {
+    // gets user address from url
+    const address = url.slice(`${appProtocol}://`.length);
 
-//     // notifies all windows
-//     BrowserWindow.getAllWindows().forEach((window, index) => {
-//         window.webContents.send('login', address);
-//         // shows first window if not in view
-//         if (index === 0) {
-//             window.show();
-//         }
-//     });
-// });
+    // notifies all windows
+    BrowserWindow.getAllWindows().forEach((window, index) => {
+        window.webContents.send('login', address);
+        // shows first window if not in view
+        if (index === 0) {
+            window.show();
+        }
+    });
+});

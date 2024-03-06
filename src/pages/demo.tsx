@@ -36,8 +36,8 @@ function Demo() {
             if (!jwt) {
                 throw new Error('JWT was not retrieved');
             }
-            await initMatrix(jwt);
             setAuthorized(true);
+            await initMatrix(jwt);
         } catch (error) {
             console.error(error);
         }
@@ -61,6 +61,21 @@ function Demo() {
 
     const roomId = authorized ? ROOM_ID : null;
 
+    const login = (matrixPublicKey: string) => {
+        const url = `${
+            import.meta.env.VITE_RENOWN_URL
+        }?connect=${encodeURIComponent(
+            matrixPublicKey || ''
+        )}`
+
+        if (window.electronAPI) {
+            window.electronAPI.openURL(`${url}&deeplink=connect`)
+        }
+        else {
+            window.open(url, '_blank')?.focus();
+        }
+    };
+
     return (
         <div className="flex h-full flex-1 flex-col items-center justify-center p-10">
             <Modal className="overflow-auto">
@@ -82,19 +97,15 @@ function Demo() {
                             in Connect on behalf of your Ethereum identity
                         </p>
                         <Button
+                            onClick={() => login(matrixPublicKey!)}
                             disabled={!matrixPublicKey}
                             className="mb-3 w-full bg-action p-0 text-white shadow-none transition-colors hover:bg-action/75"
                         >
-                            <a
+                            <p
                                 className="block h-10 px-7 leading-10"
-                                href={`${
-                                    import.meta.env.VITE_RENOWN_URL
-                                }?connect=${encodeURIComponent(
-                                    matrixPublicKey || ''
-                                )}`}
-                            >
+                                >
                                 Authorize Connect
-                            </a>
+                            </p>
                         </Button>
                         <Button className="h-10 w-full bg-neutral-2/10 p-0 text-accent-5 shadow-none transition-colors hover:bg-neutral-1">
                             Cancel
@@ -102,9 +113,9 @@ function Demo() {
                     </div>
                 ) : roomId ? (
                     <Chat roomId={roomId} />
-                ) : (
-                    <></>
-                )}
+                ) : 
+                    <p className='p-4 pb-5'>Logged in with address: {address}</p>
+                }
             </Modal>
         </div>
     );
