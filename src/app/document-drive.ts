@@ -24,7 +24,7 @@ export default (
         new FilesystemStorage(join(path, 'Document Drives')),
     );
 
-    documentDrive
+    const promise = documentDrive
         .initialize()
         .then(() =>
             documentDrive
@@ -131,4 +131,6 @@ export default (
             });
         });
     }
+
+    return promise;
 };
