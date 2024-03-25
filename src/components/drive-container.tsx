@@ -28,14 +28,17 @@ function isRemoteDriveInput(
 
 const DriveSections = [
     { key: 'public', name: 'Public Drives', type: 'PUBLIC_DRIVE' },
-    { key: 'cloud', name: 'Secure Cloud Drives', type: 'CLOUD_DRIVE' },
-    { key: 'local', name: 'My Local Drives', type: 'LOCAL_DRIVE' },
 ] as const;
 
 const getDrivesConfig = (
     driveType: 'public' | 'cloud' | 'local',
     config: FeatureFlag['drives'],
 ) => {
+    return {
+        allowAdd: false,
+        allowDelete: false,
+    };
+
     if (driveType === 'public') {
         return {
             allowAdd: config.allowAddPublicDrives,
@@ -60,6 +63,8 @@ const getDriveOptions = (
     driveType: 'public' | 'cloud' | 'local',
     config: FeatureFlag['drives'],
 ) => {
+    return [] as ConnectDropdownMenuItem[];
+
     const driveConfig = getDrivesConfig(driveType, config);
 
     const options = driveConfig.allowDelete
@@ -183,9 +188,6 @@ export default function DriveContainer(props: DriveContainerProps) {
                 <DriveView
                     {...drive}
                     key={drive.name}
-                    disableAddDrives={
-                        !getDrivesConfig(drive.key, drivesConfig).allowAdd
-                    }
                     defaultItemOptions={getDriveOptions(
                         drive.key,
                         drivesConfig,
@@ -198,7 +200,7 @@ export default function DriveContainer(props: DriveContainerProps) {
                     onDragEnd={onDragEndHandler}
                     onDropEvent={onDropEvent}
                     onDropActivate={onDropActivateHandler}
-                    onCreateDrive={onCreateDriveHandler}
+                    onCreateDrive={() => {}}
                     disableHighlightStyles={disableHoverStyles}
                 />
             ))}

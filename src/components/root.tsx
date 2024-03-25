@@ -4,6 +4,7 @@ import { useSetAtom } from 'jotai';
 import React, { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDropFile } from 'src/hooks';
+import { useDocumentDriveServer } from 'src/hooks/useDocumentDriveServer';
 import { useLoadInitialData } from 'src/hooks/useLoadInitialData';
 import { useRenown } from 'src/hooks/useRenown';
 import { isElectron, isMac } from 'src/hooks/utils';
@@ -44,6 +45,42 @@ const Root = () => {
 
         return unsubscribe;
     }, [navigate]);
+
+    const { documentDrives, addRemoteDrive } = useDocumentDriveServer();
+    useEffect(() => {
+        if (documentDrives.length > 0) {
+            return;
+        }
+
+        const url =
+            'https://switchboard-arbitrum-ng-alpha-58b7421c3732.herokuapp.com/d/core-dev';
+
+        addRemoteDrive(url, {
+            sharingType: 'public',
+            availableOffline: true,
+            listeners: [
+                {
+                    block: true,
+                    callInfo: {
+                        data: url,
+                        name: 'switchboard-push',
+                        transmitterType: 'SwitchboardPush',
+                    },
+                    filter: {
+                        branch: ['main'],
+                        documentId: ['*'],
+                        documentType: ['*'],
+                        scope: ['global'],
+                    },
+                    label: 'Switchboard Sync',
+                    listenerId: '1',
+                    system: true,
+                },
+            ],
+            triggers: [],
+            pullInterval: 3000,
+        });
+    }, []);
 
     let { dropProps, isDropTarget } = useDropFile(ref);
 
