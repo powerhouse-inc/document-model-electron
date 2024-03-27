@@ -1,19 +1,16 @@
 import {
     AddDriveInput,
     AddPublicDriveInput,
-    ConnectDropdownMenuItem,
     DriveView,
     DriveViewProps,
-    defaultDropdownMenuOptions,
     toast,
     useItemActions,
 } from '@powerhousedao/design-system';
 import { useTranslation } from 'react-i18next';
 import { useDocumentDriveServer } from 'src/hooks/useDocumentDriveServer';
 import { useDrivesContainer } from 'src/hooks/useDrivesContainer';
-import { useFeatureFlag } from 'src/hooks/useFeatureFlags';
-import { FeatureFlag } from 'src/hooks/useFeatureFlags/default-config';
 import { useOnDropEvent } from 'src/hooks/useOnDropEvent';
+import { driveSections } from 'src/utils/drive-sections';
 
 interface DriveContainerProps {
     disableHoverStyles?: boolean;
@@ -26,60 +23,10 @@ function isRemoteDriveInput(
     return Object.keys(input).includes('url');
 }
 
-const DriveSections = [
-    { key: 'public', name: 'Public Drives', type: 'PUBLIC_DRIVE' },
-] as const;
-
-const getDrivesConfig = (
-    driveType: 'public' | 'cloud' | 'local',
-    config: FeatureFlag['drives'],
-) => {
-    return {
-        allowAdd: false,
-        allowDelete: false,
-    };
-
-    if (driveType === 'public') {
-        return {
-            allowAdd: config.allowAddPublicDrives,
-            allowDelete: config.allowDeletePublicDrives,
-        };
-    }
-
-    if (driveType === 'cloud') {
-        return {
-            allowAdd: config.allowAddCloudDrives,
-            allowDelete: config.allowDeleteCloudDrives,
-        };
-    }
-
-    return {
-        allowAdd: config.allowAddLocalDrives,
-        allowDelete: config.allowDeleteLocalDrives,
-    };
-};
-
-const getDriveOptions = (
-    driveType: 'public' | 'cloud' | 'local',
-    config: FeatureFlag['drives'],
-) => {
-    return [] as ConnectDropdownMenuItem[];
-
-    const driveConfig = getDrivesConfig(driveType, config);
-
-    const options = driveConfig.allowDelete
-        ? defaultDropdownMenuOptions
-        : defaultDropdownMenuOptions.filter(option => option.id !== 'delete');
-
-    return options as ConnectDropdownMenuItem[];
-};
-
 export default function DriveContainer(props: DriveContainerProps) {
     const { disableHoverStyles = false, setDisableHoverStyles } = props;
     const actions = useItemActions();
     const { t } = useTranslation();
-    const { config } = useFeatureFlag();
-    const { drives: drivesConfig } = config;
 
     const { addDrive, addRemoteDrive } = useDocumentDriveServer();
     const { onItemOptionsClick, onItemClick, onSubmitInput } =
@@ -184,26 +131,27 @@ export default function DriveContainer(props: DriveContainerProps) {
 
     return (
         <>
-            {DriveSections.map(drive => (
-                <DriveView
-                    {...drive}
-                    key={drive.name}
-                    defaultItemOptions={getDriveOptions(
-                        drive.key,
-                        drivesConfig,
-                    )}
-                    onItemClick={onItemClick}
-                    onItemOptionsClick={onItemOptionsClick}
-                    onSubmitInput={item => onSubmitInput(item)}
-                    onCancelInput={cancelInputHandler}
-                    onDragStart={onDragStartHandler}
-                    onDragEnd={onDragEndHandler}
-                    onDropEvent={onDropEvent}
-                    onDropActivate={onDropActivateHandler}
-                    onCreateDrive={() => {}}
-                    disableHighlightStyles={disableHoverStyles}
-                />
-            ))}
+            {driveSections.map(
+                ({ type, defaultItemOptions, disableAddDrives, key, name }) => (
+                    <DriveView
+                        key={key}
+                        name={name}
+                        type={type}
+                        disableAddDrives={disableAddDrives}
+                        defaultItemOptions={defaultItemOptions}
+                        onItemClick={onItemClick}
+                        onItemOptionsClick={onItemOptionsClick}
+                        onSubmitInput={item => onSubmitInput(item)}
+                        onCancelInput={cancelInputHandler}
+                        onDragStart={onDragStartHandler}
+                        onDragEnd={onDragEndHandler}
+                        onDropEvent={onDropEvent}
+                        onDropActivate={onDropActivateHandler}
+                        onCreateDrive={onCreateDriveHandler}
+                        disableHighlightStyles={disableHoverStyles}
+                    />
+                ),
+            )}
         </>
     );
 }

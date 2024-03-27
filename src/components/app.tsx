@@ -4,34 +4,14 @@ import {
 } from '@powerhousedao/design-system';
 import { useAtomValue } from 'jotai';
 import React, { Suspense } from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { ModalManager } from 'src/components/modal';
 import atoms from 'src/store';
 
-export const App: React.FC = () => {
-    const router = createBrowserRouter([
-        {
-            path: '/',
-            lazy: () => import('./root'),
-            loader: () => <></>, // TODO loading
-            children: [
-                {
-                    path: 'd?/:driveId?/*?',
-                    lazy: () => import('src/pages/content'),
-                },
-                {
-                    path: 'settings',
-                    lazy: () => import('src/pages/settings'),
-                },
-            ],
-        },
-        {
-            lazy: () => import('./root'),
-            loader: () => <></>, // TODO loading
-        },
-    ]);
-    return <RouterProvider router={router} />;
-};
+const Router = React.lazy(async () => {
+    const createRouterComponent = await import('./router');
+    const router = await createRouterComponent.default();
+    return { default: router };
+});
 
 const Preloader = () => {
     for (const atom of Object.values(atoms)) {
@@ -43,14 +23,12 @@ const Preloader = () => {
 
 export default (
     <React.StrictMode>
-        {/* TODO loading */}
-
-        <Suspense fallback={<></>}>
+        <Suspense fallback={<>{/* TODO loading */}</>}>
             <Preloader />
             <ItemsContextProvider>
                 <ToastContainer position="bottom-right" />
                 <ModalManager>
-                    <App />
+                    <Router />
                 </ModalManager>
             </ItemsContextProvider>
         </Suspense>

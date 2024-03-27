@@ -19,10 +19,12 @@ import { DocumentEditor } from 'src/components/editors';
 import FolderView from 'src/components/folder-view';
 import { useModal } from 'src/components/modal';
 import { SearchBar } from 'src/components/search-bar';
+import { useConnectConfig } from 'src/hooks/useConnectConfig';
 import { useDocumentDriveById } from 'src/hooks/useDocumentDriveById';
 import { useDocumentDriveServer } from 'src/hooks/useDocumentDriveServer';
 import { useDrivesContainer } from 'src/hooks/useDrivesContainer';
 import { useGetDocumentById } from 'src/hooks/useGetDocumentById';
+import { useNavigateToItemId } from 'src/hooks/useNavigateToItemId';
 import { useOpenSwitchboardLink } from 'src/hooks/useOpenSwitchboardLink';
 import { useFileNodeDocument, useSelectedPath } from 'src/store/document-drive';
 import {
@@ -52,6 +54,7 @@ const Content = () => {
     const getItemByPath = useGetItemByPath();
     const getItemById = useGetItemById();
     const actions = useItemActions();
+    const [connectConfig] = useConnectConfig();
 
     const selectedFolder = getItemByPath(selectedPath || '');
     const driveID = getRootPath(selectedFolder?.path ?? '');
@@ -66,6 +69,7 @@ const Content = () => {
     const documentModels = useFilteredDocumentModels();
     const getDocumentModel = useGetDocumentModel();
     const { onSubmitInput } = useDrivesContainer();
+    const navigateToItemId = useNavigateToItemId();
 
     const driveNodes = documentDrives.find(
         drive => drive.state.global.id === decodedDriveID,
@@ -74,10 +78,8 @@ const Content = () => {
     const [selectedFileNode, setSelectedFileNode] = useState<
         { drive: string; id: string } | undefined
     >(undefined);
-    const [selectedDocument, , addOperation] = useFileNodeDocument(
-        decodedDriveID,
-        selectedFileNode?.id,
-    );
+    const [selectedDocument, setSelectedDocument, addOperation] =
+        useFileNodeDocument(decodedDriveID, selectedFileNode?.id);
 
     const params = useParams<RouteParams>();
     const [paramsShown, setParamsShown] = useState<RouteParams | undefined>(
@@ -96,45 +98,53 @@ const Content = () => {
         ) {
             return;
         }
-        // retrieves the drive id from the url
-        const driveId = decodeURIComponent(params.driveId);
-        const drive = documentDrives.find(
-            drive =>
-                drive.state.global.slug === driveId ||
-                drive.state.global.id === driveId ||
-                drive.state.global.name === driveId,
-        );
-        if (!drive) {
-            return;
-        }
 
-        // builds the path from the url checking if the nodes exist
-        const path = [encodeID(drive.state.global.id)];
-        if (params['*']) {
-            for (const nodeId of decodeURIComponent(params['*']).split('/')) {
-                const node = drive.state.global.nodes.find(
-                    node => node.name === nodeId || node.id === nodeId,
-                );
-                if (node) {
-                    // if the node is a file, then opens it instead of adding it to the path
-                    if (isFileNode(node)) {
-                        if (
-                            selectedFileNode?.drive !== drive.state.global.id ||
-                            selectedFileNode.id !== node.id
-                        ) {
-                            setSelectedFileNode({
-                                drive: drive.state.global.id,
-                                id: node.id,
-                            });
+        try {
+            // retrieves the drive id from the url
+            const driveId = decodeURIComponent(params.driveId);
+            const drive = documentDrives.find(
+                drive =>
+                    drive.state.global.slug === driveId ||
+                    drive.state.global.id === driveId ||
+                    drive.state.global.name === driveId,
+            );
+            if (!drive) {
+                return;
+            }
+
+            // builds the path from the url checking if the nodes exist
+            const path = [encodeID(drive.state.global.id)];
+            if (params['*']) {
+                for (const nodeId of decodeURIComponent(params['*']).split(
+                    '/',
+                )) {
+                    const node = drive.state.global.nodes.find(
+                        node => node.name === nodeId || node.id === nodeId,
+                    );
+                    if (node) {
+                        // if the node is a file, then opens it instead of adding it to the path
+                        if (isFileNode(node)) {
+                            if (
+                                selectedFileNode?.drive !==
+                                    drive.state.global.id ||
+                                selectedFileNode.id !== node.id
+                            ) {
+                                setSelectedFileNode({
+                                    drive: drive.state.global.id,
+                                    id: node.id,
+                                });
+                            }
+                            break;
                         }
-                        break;
+                        path.push(encodeID(node.id));
                     }
-                    path.push(encodeID(node.id));
                 }
             }
+            setSelectedPath(path.join('/'));
+            setParamsShown(params);
+        } catch (e) {
+            console.error(e);
         }
-        setSelectedPath(path.join('/'));
-        setParamsShown(params);
     }, [params, paramsShown, documentDrives]);
 
     // preload document editors
@@ -195,7 +205,7 @@ const Content = () => {
     const selectFolder = (item: TreeItem) => {
         actions.setExpandedItem(item.id, true);
         actions.setSelectedItem(item.id);
-        setSelectedPath(item.path);
+        navigateToItemId(item.id);
     };
 
     const onFolderSelectedHandler = (itemId: string) => {
@@ -214,6 +224,7 @@ const Content = () => {
             path: itemPath,
             type: 'FOLDER',
             action: 'NEW',
+            availableOffline: false,
         });
 
         const item = getItemByPath(itemPath);
@@ -224,6 +235,7 @@ const Content = () => {
     };
 
     const onDocumentChangeHandler = (document: Document) => {
+        setSelectedDocument(document);
         const item = selectedFileNode?.id
             ? getItemById(selectedFileNode.id)
             : undefined;
@@ -272,7 +284,7 @@ const Content = () => {
                                 onCancelInput={console.log}
                             />
                         )}
-                        <SearchBar />
+                        {connectConfig.content.showSearchBar && <SearchBar />}
                         <div className="px-4">
                             <div className="mb-5">
                                 <FolderView
