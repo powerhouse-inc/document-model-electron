@@ -2,7 +2,7 @@ import type { IDocumentDriveServer } from 'document-drive/server';
 import { DocumentDriveDocument } from 'document-model-libs/document-drive';
 import { atom, useAtom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 // map of DocumentDriveServer objects and their Document Drives
 const documentDrivesAtom = atom(
@@ -58,17 +58,31 @@ export function useDocumentDrives(server: IDocumentDriveServer) {
         refreshDocumentDrives();
     }
 
-    useEffect(() => {
-        const unsub1 = server.on('syncStatus', () => refreshDocumentDrives());
+    const serverSubscribeUpdates = useCallback(() => {
+        const unsub1 = server.on(
+            'syncStatus',
+            async (_event, _status, error) => {
+                if (error) {
+                    console.error(error);
+                }
+
+                await refreshDocumentDrives();
+            },
+        );
         const unsub2 = server.on('strandUpdate', () => refreshDocumentDrives());
         return () => {
             unsub1();
             unsub2();
         };
-    }, [refreshDocumentDrives, server]);
+    }, [server, refreshDocumentDrives]);
 
     return useMemo(
-        () => [documentDrives, refreshDocumentDrives] as const,
+        () =>
+            [
+                documentDrives,
+                refreshDocumentDrives,
+                serverSubscribeUpdates,
+            ] as const,
         [documentDrives],
     );
 }
