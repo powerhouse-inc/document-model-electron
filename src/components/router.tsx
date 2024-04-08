@@ -2,13 +2,13 @@ import connectConfig from 'connect-config';
 import {
     RouteObject,
     RouterProvider,
-    createHashRouter,
+    createBrowserRouter,
     createMemoryRouter,
 } from 'react-router-dom';
 
 async function createRouter(routes: RouteObject[]) {
     const isPackaged = await window.electronAPI?.isPackaged();
-    const createRouter = isPackaged ? createMemoryRouter : createHashRouter;
+    const createRouter = isPackaged ? createMemoryRouter : createBrowserRouter;
     return createRouter(routes, { basename: connectConfig.routerBasename });
 }
 
