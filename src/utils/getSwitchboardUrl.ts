@@ -123,7 +123,7 @@ export const getSwitchboardUrl = (
     const query = getQuery(documentId, documentType);
     const url =
         join(
-            `${baseUrl}/${process.env.VITE_ROUTER_BASENAME}`,
+            `${baseUrl}/${import.meta.env.VITE_ROUTER_BASENAME}`,
             'explorer',
             driveId,
         ) + `?query=${query}`;
