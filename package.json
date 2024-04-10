@@ -108,6 +108,8 @@
         "react-stately": "^3.22.0",
         "tailwind-merge": "^1.14.0",
         "uuid": "^9.0.1",
-        "viem": "^2.8.13"
+        "viem": "^2.8.13",
+        "winston": "^3.13.0",
+        "winston-sentry-log": "^1.0.26"
     }
 }
