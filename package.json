@@ -89,11 +89,11 @@
         "xvfb-maybe": "^0.2.1"
     },
     "dependencies": {
-        "@powerhousedao/design-system": "1.0.0-alpha.97",
+        "@powerhousedao/design-system": "1.0.0-alpha.100",
         "@sentry/react": "^7.109.0",
         "did-key-creator": "^1.2.0",
-        "document-drive": "1.0.0-alpha.41",
-        "document-model": "^1.0.51",
+        "document-drive": "^1.0.0-alpha.46",
+        "document-model": "^1.0.52",
         "document-model-libs": "^1.37.0-arbitrum.1",
         "electron-is-dev": "^3.0.1",
         "electron-squirrel-startup": "^1.0.0",

@@ -2,6 +2,7 @@ import {
     Button,
     ClearStorageSettingsRow,
     SettingsModal as ConnectSettingsModal,
+    DependencyVersions,
     DocumentSelectSettingsRow,
 } from '@powerhousedao/design-system';
 import { DocumentModel } from 'document-model/document';
@@ -17,6 +18,7 @@ import {
     useFilteredDocumentModels,
 } from 'src/store/document-model';
 import { useUser } from 'src/store/user';
+import packageJson from '../../../../package.json';
 import { Login } from '../../login';
 
 const mapDocumentModelsToOptions = (documentModels: DocumentModel[]) =>
@@ -138,6 +140,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = props => {
                     'modals.connectSettings.clearStorage.description',
                 )}
             />
+            <DependencyVersions packageJson={packageJson} />
         </ConnectSettingsModal>
     );
 };
