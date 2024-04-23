@@ -94,7 +94,7 @@
         "did-key-creator": "^1.2.0",
         "document-drive": "^1.0.0-alpha.43",
         "document-model": "^1.0.51",
-        "document-model-libs": "^1.37.0-arbitrum.1",
+        "document-model-libs": "1.37.0-arbitrum.2",
         "electron-is-dev": "^3.0.1",
         "electron-squirrel-startup": "^1.0.0",
         "electron-store": "^8.1.0",
