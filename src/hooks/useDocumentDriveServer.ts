@@ -251,6 +251,8 @@ export function useDocumentDriveServer(
     }) {
         const { decodedDriveId, srcId, decodedTargetId } = params;
 
+        if (srcId === decodedTargetId) return;
+
         await _addDriveOperation(
             decodedDriveId,
             actions.moveNode({
@@ -311,9 +313,6 @@ export function useDocumentDriveServer(
         id: string,
         operation: Operation,
     ) {
-        if (!isAllowedToCreateDocuments) {
-            throw new Error('User is not allowed to add operations');
-        }
         if (!server) {
             throw new Error('Server is not defined');
         }
@@ -334,9 +333,6 @@ export function useDocumentDriveServer(
         id: string,
         operations: Operation[],
     ) {
-        if (!isAllowedToCreateDocuments) {
-            throw new Error('User is not allowed to add operations');
-        }
         if (!server) {
             throw new Error('Server is not defined');
         }
