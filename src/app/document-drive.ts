@@ -26,7 +26,7 @@ export default (
         documentModels,
         new FilesystemStorage(join(path, 'Document Drives')),
         new InMemoryCache(),
-        new BaseQueueManager(1, 1000),
+        new BaseQueueManager(1, 500),
     );
 
     const promise = documentDrive
