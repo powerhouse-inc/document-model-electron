@@ -1,4 +1,6 @@
 import connectConfig from 'connect-config';
+import InMemoryCache from 'document-drive/cache/memory';
+import { BaseQueueManager } from 'document-drive/queue/base';
 import {
     DocumentDriveServer,
     DriveInput,
@@ -23,6 +25,8 @@ export default (
     const documentDrive = new DocumentDriveServer(
         documentModels,
         new FilesystemStorage(join(path, 'Document Drives')),
+        new InMemoryCache(),
+        new BaseQueueManager(1, 1000),
     );
 
     const promise = documentDrive
@@ -84,13 +88,13 @@ export default (
     ipcMain.handle(
         'documentDrive:addOperation',
         (_e, drive: string, id: string, operation: Operation) =>
-            documentDrive.addOperation(drive, id, operation),
+            documentDrive.queueOperations(drive, id, [operation]),
     );
 
     ipcMain.handle(
         'documentDrive:addOperations',
         (_e, drive: string, id: string, operations: Operation[]) =>
-            documentDrive.addOperations(drive, id, operations),
+            documentDrive.queueOperations(drive, id, operations),
     );
 
     ipcMain.handle(
@@ -99,7 +103,7 @@ export default (
             _e,
             drive: string,
             operation: Operation<DocumentDriveAction | BaseAction>,
-        ) => documentDrive.addDriveOperation(drive, operation),
+        ) => documentDrive.queueDriveOperations(drive, [operation]),
     );
 
     ipcMain.handle(
@@ -108,7 +112,7 @@ export default (
             _e,
             drive: string,
             operations: Operation<DocumentDriveAction | BaseAction>[],
-        ) => documentDrive.addDriveOperations(drive, operations),
+        ) => documentDrive.queueDriveOperations(drive, operations),
     );
 
     ipcMain.handle('documentDrive:clearStorage', () =>
