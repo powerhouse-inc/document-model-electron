@@ -87,14 +87,46 @@ export default (
     );
     ipcMain.handle(
         'documentDrive:addOperation',
-        (_e, drive: string, id: string, operation: Operation) =>
-            documentDrive.queueOperations(drive, id, [operation]),
+        (
+            _e,
+            drive: string,
+            id: string,
+            operation: Operation,
+            forceSync?: boolean,
+        ) => documentDrive.addOperation(drive, id, operation),
     );
 
     ipcMain.handle(
         'documentDrive:addOperations',
-        (_e, drive: string, id: string, operations: Operation[]) =>
-            documentDrive.queueOperations(drive, id, operations),
+        (
+            _e,
+            drive: string,
+            id: string,
+            operations: Operation[],
+            forceSync?: boolean,
+        ) => documentDrive.addOperations(drive, id, operations, forceSync),
+    );
+
+    ipcMain.handle(
+        'documentDrive:queueOperation',
+        (
+            _e,
+            drive: string,
+            id: string,
+            operation: Operation,
+            forceSync?: boolean,
+        ) => documentDrive.queueOperation(drive, id, operation, forceSync),
+    );
+
+    ipcMain.handle(
+        'documentDrive:queueOperations',
+        (
+            _e,
+            drive: string,
+            id: string,
+            operations: Operation[],
+            forceSync?: boolean,
+        ) => documentDrive.queueOperations(drive, id, operations, forceSync),
     );
 
     ipcMain.handle(
@@ -103,7 +135,8 @@ export default (
             _e,
             drive: string,
             operation: Operation<DocumentDriveAction | BaseAction>,
-        ) => documentDrive.queueDriveOperations(drive, [operation]),
+            forceSync?: boolean,
+        ) => documentDrive.addDriveOperation(drive, operation),
     );
 
     ipcMain.handle(
@@ -112,7 +145,28 @@ export default (
             _e,
             drive: string,
             operations: Operation<DocumentDriveAction | BaseAction>[],
-        ) => documentDrive.queueDriveOperations(drive, operations),
+            forceSync?: boolean,
+        ) => documentDrive.addDriveOperations(drive, operations, forceSync),
+    );
+
+    ipcMain.handle(
+        'documentDrive:queueDriveOperation',
+        (
+            _e,
+            drive: string,
+            operation: Operation<DocumentDriveAction | BaseAction>,
+            forceSync?: boolean,
+        ) => documentDrive.queueDriveOperations(drive, [operation], forceSync),
+    );
+
+    ipcMain.handle(
+        'documentDrive:queueDriveOperations',
+        (
+            _e,
+            drive: string,
+            operations: Operation<DocumentDriveAction | BaseAction>[],
+            forceSync?: boolean,
+        ) => documentDrive.queueDriveOperations(drive, operations, forceSync),
     );
 
     ipcMain.handle('documentDrive:clearStorage', () =>
