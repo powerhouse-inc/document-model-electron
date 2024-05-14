@@ -1,9 +1,4 @@
-import {
-    DriveType,
-    ERROR,
-    SharingType,
-    getIsLocalDrive,
-} from '@powerhousedao/design-system';
+import { DriveType, ERROR, SharingType } from '@powerhousedao/design-system';
 import {
     DriveInput,
     IDocumentDriveServer,
@@ -27,7 +22,7 @@ import { useGetDocumentModel } from 'src/store/document-model';
 import { DefaultDocumentDriveServer } from 'src/utils/document-drive-server';
 import { loadFile } from 'src/utils/file';
 import { useDocumentDrives } from './useDocumentDrives';
-import { useIsAllowedToCreateDocuments } from './useIsAllowedToCreateDocuments';
+import { useUserPermissions } from './useUserPermissions';
 
 // TODO this should be added to the document model
 export interface SortOptions {
@@ -37,7 +32,8 @@ export interface SortOptions {
 export function useDocumentDriveServer(
     server: IDocumentDriveServer | undefined = DefaultDocumentDriveServer,
 ) {
-    const isAllowedToCreateDocuments = useIsAllowedToCreateDocuments();
+    const { isAllowedToCreateDocuments, isAllowedToEditDocuments } =
+        useUserPermissions();
 
     if (!server) {
         throw new Error('Invalid Document Drive Server');
@@ -45,7 +41,8 @@ export function useDocumentDriveServer(
 
     const getDocumentModel = useGetDocumentModel();
 
-    const [documentDrives, refreshDocumentDrives] = useDocumentDrives(server);
+    const [documentDrives, refreshDocumentDrives, , documentDrivesStatus] =
+        useDocumentDrives(server);
 
     async function openFile(drive: string, id: string) {
         const document = await server.getDocument(drive, id);
@@ -81,7 +78,7 @@ export function useDocumentDriveServer(
         }
 
         try {
-            const result = await server.addDriveOperation(driveId, operation);
+            const result = await server.queueDriveOperation(driveId, operation);
 
             if (result.status !== 'SUCCESS') {
                 console.error(result.error);
@@ -249,6 +246,10 @@ export function useDocumentDriveServer(
         decodedDriveId: string;
         decodedTargetId: string;
     }) {
+        if (!isAllowedToCreateDocuments) {
+            throw new Error('User is not allowed to move documents');
+        }
+
         const { decodedDriveId, srcId, decodedTargetId } = params;
 
         if (srcId === decodedTargetId) return;
@@ -268,6 +269,10 @@ export function useDocumentDriveServer(
         decodedDriveId: string;
         decodedTargetId: string;
     }) {
+        if (!isAllowedToCreateDocuments) {
+            throw new Error('User is not allowed to copy documents');
+        }
+
         const { decodedDriveId, srcId, srcName, decodedTargetId } = params;
 
         if (srcId === decodedTargetId) return;
@@ -313,6 +318,10 @@ export function useDocumentDriveServer(
         id: string,
         operation: Operation,
     ) {
+        if (!isAllowedToEditDocuments) {
+            throw new Error('User is not allowed to edit documents');
+        }
+
         if (!server) {
             throw new Error('Server is not defined');
         }
@@ -333,6 +342,10 @@ export function useDocumentDriveServer(
         id: string,
         operations: Operation[],
     ) {
+        if (!isAllowedToEditDocuments) {
+            throw new Error('User is not allowed to edit documents');
+        }
+
         if (!server) {
             throw new Error('Server is not defined');
         }
@@ -344,7 +357,11 @@ export function useDocumentDriveServer(
             throw new Error(`Drive with id ${driveId} not found`);
         }
 
-        const newDocument = await server.addOperations(driveId, id, operations);
+        const newDocument = await server.queueOperations(
+            driveId,
+            id,
+            operations,
+        );
         return newDocument.document;
     }
 
@@ -428,7 +445,7 @@ export function useDocumentDriveServer(
         driveId: string,
         type: DriveType,
     ): Promise<SyncStatus | undefined> {
-        if (getIsLocalDrive(type)) return;
+        if (type === 'LOCAL_DRIVE') return;
         try {
             return server.getSyncStatus(driveId);
         } catch (error) {
@@ -455,6 +472,7 @@ export function useDocumentDriveServer(
     return useMemo(
         () => ({
             documentDrives,
+            documentDrivesStatus,
             addDocument,
             openFile,
             addFile,
@@ -478,6 +496,6 @@ export function useDocumentDriveServer(
             onSyncStatus,
             clearStorage,
         }),
-        [documentDrives],
+        [documentDrives, documentDrivesStatus],
     );
 }
