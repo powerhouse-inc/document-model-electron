@@ -2,6 +2,13 @@
 
 Demo Electron app to interact with Budget Statement documents.
 
+## Quickstart
+
+```
+npm install
+npm run dev:web
+```
+
 ## Usage
 
 Install dependencies:
