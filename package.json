@@ -96,7 +96,7 @@
         "did-key-creator": "^1.2.0",
         "document-drive": "1.0.0-alpha.68",
         "document-model": "1.5.0",
-        "document-model-libs": "^1.59.0-arbitrum.3",
+        "document-model-libs": "1.59.0-arbitrum.4",
         "electron-is-dev": "^3.0.1",
         "electron-squirrel-startup": "^1.0.0",
         "electron-store": "^8.1.0",
@@ -115,7 +115,7 @@
     },
     "overrides": {
         "document-drive": {
-            "document-model-libs": "doc-arb-ltip"
+            "document-model-libs": "1.59.0-arbitrum.4"
         }
     },
     "optionalDependencies": {
