@@ -28,7 +28,7 @@ jobs:
             --build-arg VITE_ROUTER_BASENAME=/arbitrum/connect
             --build-arg VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
             --build-arg VITE_SENTRY_ENV=${{ secrets.SENTRY_ENV }}
-            --build-arg VITE_ENABLED_EDITORS="arbitrum/ltip-grantee"
+            --build-arg VITE_ENABLED_EDITORS=arbitrum/ltip-grantee
             --build-arg VITE_DISABLE_ADD_PUBLIC_DRIVES=true
             --build-arg VITE_DISABLE_ADD_CLOUD_DRIVES=true
             --build-arg VITE_DISABLE_ADD_LOCAL_DRIVES=true
