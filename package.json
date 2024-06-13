@@ -115,7 +115,7 @@
     },
     "overrides": {
         "document-drive": {
-            "document-model-libs": "1.59.0-arbitrum.4"
+            "document-model-libs": "doc-arb-ltip"
         }
     },
     "optionalDependencies": {
