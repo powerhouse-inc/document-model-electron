@@ -21,6 +21,7 @@ export const useLoadDefaultDrive = () => {
         console.log('Clearing default drive');
         await clearStorage();
         setConfig(defaultConfig);
+        location.reload();
         loading.current = false;
     }
 
@@ -73,7 +74,7 @@ export const useLoadDefaultDrive = () => {
                     },
                 ],
                 triggers: [],
-                pullInterval: 3000,
+                pullInterval: 10000,
             })
                 .then(() =>
                     setConfig(conf => ({

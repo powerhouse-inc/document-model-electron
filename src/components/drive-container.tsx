@@ -82,7 +82,7 @@ export default function DriveContainer(props: DriveContainerProps) {
                             },
                         ],
                         triggers: [],
-                        pullInterval: 3000,
+                        pullInterval: 10000,
                     });
                 } else {
                     await addDrive({
