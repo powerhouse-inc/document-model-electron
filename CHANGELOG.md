@@ -1,3 +1,55 @@
+# [1.0.0-dev.9](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.8...v1.0.0-dev.9) (2024-06-18)
+
+
+### Features
+
+* bump libs ([32b2f39](https://github.com/powerhouse-inc/document-model-electron/commit/32b2f390eee0d613b86b4988e970db27077868c3))
+
+# [1.0.0-dev.8](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.7...v1.0.0-dev.8) (2024-06-17)
+
+
+### Features
+
+* bump libs ([1216c33](https://github.com/powerhouse-inc/document-model-electron/commit/1216c33f4c713d4c7ac6eeb76725a51a6e6cf9a0))
+
+# [1.0.0-dev.7](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.6...v1.0.0-dev.7) (2024-06-14)
+
+
+### Features
+
+* avoid recreate fileOptions and clickOptionsHandler for each file node ([0a0ef3a](https://github.com/powerhouse-inc/document-model-electron/commit/0a0ef3a181489ec91a8c8439f25dcb9f3713f9a9))
+* avoid recreate folderOptions and clickFolderOptionsHandler for each folder node ([6329b29](https://github.com/powerhouse-inc/document-model-electron/commit/6329b291adee5895070f3b2192f84c36c86406a8))
+* moved isAllowedToCreateDocuments to folderView ([8af8020](https://github.com/powerhouse-inc/document-model-electron/commit/8af8020109d85cd1d6cae167cd51ddf722d2bb46))
+* re-use decodedDriveID ([1a82d60](https://github.com/powerhouse-inc/document-model-electron/commit/1a82d60b5bbfc5f99f99d38e3909da4364325817))
+* removed debug code ([4aa9c4c](https://github.com/powerhouse-inc/document-model-electron/commit/4aa9c4c2fa205a2f2823d2816b64e420efe2cf2a))
+* use memoized version of FileItem component ([040c2b6](https://github.com/powerhouse-inc/document-model-electron/commit/040c2b6ca0cdd8c87d313d27169213a50cffb4cd))
+
+# [1.0.0-dev.6](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2024-06-14)
+
+
+### Features
+
+* bump libs ([153909c](https://github.com/powerhouse-inc/document-model-electron/commit/153909c5c7e0bc2c97511f9001c1b3e4f7ec5f79))
+* bump libs ([fe4d49a](https://github.com/powerhouse-inc/document-model-electron/commit/fe4d49a4acdccb5a24678ca38b914257599a63b9))
+
+# [1.0.0-dev.5](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2024-06-13)
+
+
+### Features
+
+* added reload Connect toast ([944b086](https://github.com/powerhouse-inc/document-model-electron/commit/944b0866bf7ca830581a21ed828f81c880891922))
+* added version comparison ([85661ea](https://github.com/powerhouse-inc/document-model-electron/commit/85661eaa9aac0a8f38ce465adf1c0c227a442846))
+
+# [1.0.0-dev.4](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2024-06-13)
+
+
+### Features
+
+* added addpublicdrive util ([123ed8b](https://github.com/powerhouse-inc/document-model-electron/commit/123ed8be07321eafcac2521f4ae7452e86a6895f))
+* added cypress CI config ([e50fb06](https://github.com/powerhouse-inc/document-model-electron/commit/e50fb062eccf6387399bad9403f59a20bc478d89))
+* added Cypress Cloud Config ([3439c54](https://github.com/powerhouse-inc/document-model-electron/commit/3439c5493098d66a6e7563068f35afcae255b142))
+* added cypress setup ([be8e1b6](https://github.com/powerhouse-inc/document-model-electron/commit/be8e1b6e702f3f9209d694d5642ee82465a6bb9b))
+
 # [1.0.0-dev.3](https://github.com/powerhouse-inc/document-model-electron/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2024-06-12)
 
 
