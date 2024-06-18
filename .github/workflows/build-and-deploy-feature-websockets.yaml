@@ -1,0 +1,30 @@
+name: Deploy Connect Powerhouse Feature Websockets
+
+on:
+  push:
+    branches: [feature/websockets]
+
+env:
+  HUSKY: 0
+
+jobs:
+  build:
+    environment: feature-websockets
+    runs-on: ubuntu-latest
+    steps:
+      # Check-out your repository.
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build, Push and Release APP to Heroku. # Your custom step name
+        uses: gonuit/heroku-docker-deploy@v1.3.3
+        with:
+          email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ""
+          docker_options: >-
+            --build-arg BASE_PATH=/feature/websockets/connect
+            --build-arg VITE_BASE_HREF=/feature/websockets/connect/
+            --build-arg VITE_ROUTER_BASENAME=/feature/websockets/connect
+            --build-arg VITE_DEFAULT_DRIVE_URL=https://apps.powerhouse.io/feature/websockets/switchboard/d/core-dev
+          process_type: web
