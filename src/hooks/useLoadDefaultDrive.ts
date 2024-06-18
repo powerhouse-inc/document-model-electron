@@ -28,7 +28,7 @@ export const useLoadDefaultDrive = () => {
     useEffect(() => {
         if (
             !loading.current &&
-            defaultDrive &&
+            defaultDrive?.loaded &&
             defaultConfig.defaultDrive &&
             defaultDrive.url !== defaultConfig.defaultDrive.url
         ) {
