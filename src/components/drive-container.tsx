@@ -82,7 +82,7 @@ export default function DriveContainer(props: DriveContainerProps) {
                             },
                         ],
                         triggers: [],
-                        pullInterval: 3000,
+                        pullInterval: 10000,
                     });
                 } else {
                     await addDrive({
@@ -138,6 +138,7 @@ export default function DriveContainer(props: DriveContainerProps) {
                         key={key}
                         name={name}
                         type={type}
+                        displaySyncFolderIcons
                         disableAddDrives={disableAddDrives}
                         defaultItemOptions={defaultItemOptions}
                         onItemClick={onItemClick}

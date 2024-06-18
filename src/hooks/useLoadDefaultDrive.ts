@@ -1,17 +1,46 @@
 import { useEffect, useRef } from 'react';
 import { useDocumentDriveServer } from './useDocumentDriveServer';
 import { useFeatureFlag } from './useFeatureFlags';
+import defaultConfig from './useFeatureFlags/default-config';
 
 export const useLoadDefaultDrive = () => {
     const loading = useRef(false);
-    const { addRemoteDrive, documentDrives, documentDrivesStatus } = useDocumentDriveServer();
+    const {
+        addRemoteDrive,
+        documentDrives,
+        documentDrivesStatus,
+        clearStorage,
+    } = useDocumentDriveServer();
     const {
         setConfig,
         config: { defaultDrive },
     } = useFeatureFlag();
 
+    // TODO - remove this when we have a way to reset the default drive
+    async function resetDefaultDrive() {
+        console.log('Clearing default drive');
+        await clearStorage();
+        setConfig(defaultConfig);
+        location.reload();
+        loading.current = false;
+    }
+
     useEffect(() => {
-        if (defaultDrive && documentDrivesStatus === "LOADED" && !defaultDrive.loaded && !loading.current) {
+        if (
+            !loading.current &&
+            defaultDrive?.loaded &&
+            defaultConfig.defaultDrive &&
+            defaultDrive.url !== defaultConfig.defaultDrive.url
+        ) {
+            loading.current = true;
+            void resetDefaultDrive();
+        }
+        if (
+            defaultDrive &&
+            documentDrivesStatus === 'LOADED' &&
+            !defaultDrive.loaded &&
+            !loading.current
+        ) {
             const isDriveAlreadyAdded = documentDrives.some(drive => {
                 return drive.state.local.triggers.some(
                     trigger => trigger.data?.url === defaultDrive.url,
@@ -45,7 +74,7 @@ export const useLoadDefaultDrive = () => {
                     },
                 ],
                 triggers: [],
-                pullInterval: 3000,
+                pullInterval: 10000,
             })
                 .then(() =>
                     setConfig(conf => ({
