@@ -26,5 +26,5 @@ jobs:
             --build-arg BASE_PATH=/feature/websockets/connect
             --build-arg VITE_BASE_HREF=/feature/websockets/connect/
             --build-arg VITE_ROUTER_BASENAME=/feature/websockets/connect
-            --build-arg VITE_DEFAULT_DRIVE_URL=https://apps.powerhouse.io/feature/websockets/switchboard/d/core-dev
+            --build-arg VITE_DEFAULT_DRIVE_URL=https://switchboard-api-websockets-a5d9ebc8b6ff.herokuapp.com/feature/websockets/switchboard/d/core-dev
           process_type: web
