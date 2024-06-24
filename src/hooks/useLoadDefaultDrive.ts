@@ -4,14 +4,19 @@ import { useFeatureFlag } from './useFeatureFlags';
 
 export const useLoadDefaultDrive = () => {
     const loading = useRef(false);
-    const { addRemoteDrive, documentDrives, documentDrivesStatus } = useDocumentDriveServer();
+    const {
+        addRemoteDrive,
+        documentDrives,
+        documentDrivesStatus,
+        clearStorage,
+    } = useDocumentDriveServer();
     const {
         setConfig,
         config: { defaultDrive },
     } = useFeatureFlag();
 
     useEffect(() => {
-        if (defaultDrive && documentDrivesStatus === "LOADED" && !defaultDrive.loaded && !loading.current) {
+        if (defaultDrive && !defaultDrive.loaded && !loading.current) {
             const isDriveAlreadyAdded = documentDrives.some(drive => {
                 return drive.state.local.triggers.some(
                     trigger => trigger.data?.url === defaultDrive.url,
@@ -21,32 +26,34 @@ export const useLoadDefaultDrive = () => {
             if (isDriveAlreadyAdded) return;
 
             loading.current = true;
-
-            addRemoteDrive(defaultDrive.url, {
-                sharingType: 'PUBLIC',
-                availableOffline: true,
-                listeners: [
-                    {
-                        block: true,
-                        callInfo: {
-                            data: defaultDrive.url,
-                            name: 'switchboard-push',
-                            transmitterType: 'SwitchboardPush',
-                        },
-                        filter: {
-                            branch: ['main'],
-                            documentId: ['*'],
-                            documentType: ['*'],
-                            scope: ['global'],
-                        },
-                        label: 'Switchboard Sync',
-                        listenerId: '1',
-                        system: true,
-                    },
-                ],
-                triggers: [],
-                pullInterval: 3000,
-            })
+            clearStorage()
+                .then(() =>
+                    addRemoteDrive(defaultDrive.url, {
+                        sharingType: 'PUBLIC',
+                        availableOffline: true,
+                        listeners: [
+                            {
+                                block: true,
+                                callInfo: {
+                                    data: defaultDrive.url,
+                                    name: 'switchboard-push',
+                                    transmitterType: 'SwitchboardPush',
+                                },
+                                filter: {
+                                    branch: ['main'],
+                                    documentId: ['*'],
+                                    documentType: ['*'],
+                                    scope: ['global'],
+                                },
+                                label: 'Switchboard Sync',
+                                listenerId: '1',
+                                system: true,
+                            },
+                        ],
+                        triggers: [],
+                        pullInterval: 3000,
+                    }),
+                )
                 .then(() =>
                     setConfig(conf => ({
                         ...conf,
